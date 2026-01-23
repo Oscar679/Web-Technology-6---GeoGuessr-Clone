@@ -5,12 +5,12 @@ namespace App\Http\Controllers;
 use Illuminate\Routing\Controller;
 use App\Services\MapillaryService;
 
-class MapillaryController extends Controller
+class MapillaryController
 {
-    public function random(MapillaryService $mapillary)
+    public function random(MapillaryService $mapillaryService)
     {
         return response()->json(
-            $mapillary->fetchImage()
+            $mapillaryService->fetchImage()
         );
     }
 }

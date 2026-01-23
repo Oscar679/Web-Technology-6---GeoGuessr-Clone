@@ -7,7 +7,7 @@ import {
 import { BrowserRouter } from "react-router-dom"
 
 createRoot(document.getElementById('root')!).render(
-    <BrowserRouter basename='/oe222ia/geoguessr_frontend'>
+    <BrowserRouter basename='/'>
         <Theme appearance='dark'>
             <App />
         </Theme>
