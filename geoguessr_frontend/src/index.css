@@ -1,0 +1,23 @@
+@import "tailwindcss";
+@import "@radix-ui/themes/styles.css";
+
+:root {
+  --background: 37 37 37;
+  --foreground: 255 255 255;
+  --surface: 25 25 25;
+  --surface-hover: 79 70 229;
+}
+
+.radix-themes {
+  --color-background: rgb(var(--background));
+  --color-foreground: rgba(var(--foreground), 0.959);
+}
+
+
+@layer base {
+
+  button:not(:disabled),
+  [role="button"]:not(:disabled) {
+    cursor: pointer;
+  }
+}
