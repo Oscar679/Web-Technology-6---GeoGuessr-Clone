@@ -1,8 +1,10 @@
 import axios from "axios";
 import { useState, useEffect } from "react";
 import { Breadcrumb, BreadcrumbItem, BreadcrumbList, BreadcrumbLink, BreadcrumbSeparator, BreadcrumbPage } from "../components/ui/breadcrumb";
+import { Content } from "@radix-ui/react-menubar";
 
-const Login = () => {
+
+const SignUp = () => {
     useEffect(() => {
         document.body.style.overflow = "hidden";
         return () => {
@@ -22,8 +24,8 @@ const Login = () => {
 
         try {
             const response = await axios.post(
-                "http://127.0.0.1/oe222ia/geoguessr_backend/api/login",
-                values,
+                "http://127.0.0.1/oe222ia/geoguessr_backend/api/register",
+                values
             );
 
             console.log("SUCCESS:", response.data);
@@ -45,7 +47,7 @@ const Login = () => {
                         </BreadcrumbItem>
                         <BreadcrumbSeparator />
                         <BreadcrumbItem>
-                            <BreadcrumbLink href="/Login">Log In</BreadcrumbLink>
+                            <BreadcrumbLink href="/Login">Sign up</BreadcrumbLink>
                         </BreadcrumbItem>
                     </BreadcrumbList>
                 </Breadcrumb>
@@ -56,13 +58,23 @@ const Login = () => {
                         onSubmit={handleSubmit}
                         className="w-full max-w-md space-y-4 bg-zinc-800 p-6 rounded-lg"
                     >
-                        <h1 className="text-2xl font-semibold text-center">Log In</h1>
+                        <h1 className="text-2xl font-semibold text-center">Sign up</h1>
+
                         <input
-                            name="username"
+                            name="email"
+                            type="email"
+                            placeholder="E-mail"
+                            required
+                            className="w-full px-3 py-2 rounded bg-zinc-700 text-white"
+                        />
+
+                        <input
+                            name="name"
                             placeholder="Username"
                             required
                             className="w-full px-3 py-2 rounded bg-zinc-700 text-white"
                         />
+
                         <input
                             name="password"
                             type="password"
@@ -72,6 +84,7 @@ const Login = () => {
                         />
 
                         {error && <p className="text-red-400 text-sm">{error}</p>}
+
                         <button
                             type="submit"
                             disabled={loading}
@@ -80,11 +93,12 @@ const Login = () => {
                             {loading ? "Loading..." : "Sign up"}
                         </button>
                     </form>
+
                     <a
-                        href="/SignUp"
+                        href="/Login"
                         className="text-sm text-zinc-400 hover:text-indigo-500 hover:underline"
                     >
-                        Not a member? - Sign up
+                        Already a member? – Log in
                     </a>
                 </div>
             </div>
@@ -92,4 +106,4 @@ const Login = () => {
     );
 };
 
-export default Login;
+export default SignUp;

@@ -17,6 +17,7 @@
     "@radix-ui/themes": "^3.2.1",
     "@react-login-page/base": "^1.0.6",
     "@react-login-page/page8": "^1.0.6",
+    "axios": "^1.13.2",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "framer-motion": "^12.28.1",

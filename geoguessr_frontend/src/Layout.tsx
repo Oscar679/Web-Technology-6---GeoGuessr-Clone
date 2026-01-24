@@ -1,7 +1,5 @@
 import {
     Menubar,
-    MenubarContent,
-    MenubarItem,
     MenubarMenu,
     MenubarTrigger
 } from "./components/ui/menubar"

@@ -8,6 +8,7 @@ import Result from "./pages/Result"
 import Layout from "./Layout"
 import LeaderBoard from "./pages/LeaderBoard"
 import Login from "./pages/Login"
+import SignUp from "./pages/SignUp"
 
 function App() {
     return (
@@ -20,6 +21,7 @@ function App() {
                     <Route path="/Result" element={<Result />} />
                     <Route path="/Leaderboard" element={<LeaderBoard />} />
                     <Route path="/Login" element={<Login />} />
+                    <Route path="/SignUp" element={<SignUp />} />
                 </Route>
             </Routes>
         </>
