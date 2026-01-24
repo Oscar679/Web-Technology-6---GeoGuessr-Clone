@@ -1,6 +1,15 @@
 
 import LoginPage, { Logo, Username, Password, Footer, Title } from '@react-login-page/page8';
 
+import {
+    Breadcrumb,
+    BreadcrumbItem,
+    BreadcrumbLink,
+    BreadcrumbList,
+    BreadcrumbPage,
+    BreadcrumbSeparator,
+} from "../components/ui/breadcrumb"
+
 const css = {
     '--login-bg': 'transparent',
     '--login-color': '#fff',
@@ -22,19 +31,33 @@ const css = {
 };
 
 const Demo = () => (
-    <LoginPage style={{
-        height: 690,
-        ...css
-    }}>
-        <Logo hidden={true}>
-            <Title hidden={true}></Title>
-        </Logo>
-        <Username panel='signup' visible={true} label="Username" />
-        <Password panel="signup" visible={false} keyname="confirm-password" label="Confirm Password" />
-        <Footer>
-            Not a member? <a href="#">Sign up now</a>
-        </Footer>
-    </LoginPage>
+    <div>
+        <Breadcrumb>
+            <BreadcrumbList>
+                <BreadcrumbItem>
+                    <BreadcrumbLink href="/">Home</BreadcrumbLink>
+                </BreadcrumbItem>
+                <BreadcrumbSeparator />
+                <BreadcrumbItem>
+                    <BreadcrumbPage>Log In</BreadcrumbPage>
+                </BreadcrumbItem>
+            </BreadcrumbList>
+        </Breadcrumb>
+
+        <LoginPage style={{
+            height: 690,
+            ...css
+        }}>
+            <Logo hidden={true}>
+                <Title hidden={true}></Title>
+            </Logo>
+            <Username panel='signup' visible={true} label="Username" />
+            <Password panel="signup" visible={false} keyname="confirm-password" label="Confirm Password" />
+            <Footer>
+                Not a member? <a href="#">Sign up now</a>
+            </Footer>
+        </LoginPage>
+    </div>
 );
 
 export default Demo;
