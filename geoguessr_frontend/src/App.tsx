@@ -7,6 +7,7 @@ import Game from "./pages/Game"
 import Result from "./pages/Result"
 import Layout from "./Layout"
 import LeaderBoard from "./pages/LeaderBoard"
+import Login from "./pages/Login"
 
 function App() {
     return (
@@ -18,6 +19,7 @@ function App() {
                     <Route path="/Game" element={<Game />} />
                     <Route path="/Result" element={<Result />} />
                     <Route path="/Leaderboard" element={<LeaderBoard />} />
+                    <Route path="/Login" element={<Login />} />
                 </Route>
             </Routes>
         </>

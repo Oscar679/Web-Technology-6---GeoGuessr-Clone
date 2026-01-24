@@ -24,7 +24,7 @@ export default function Layout() {
                 </MenubarMenu>
                 <MenubarMenu>
                     <MenubarTrigger asChild className='px-14 hover:bg-indigo-600 ml-auto'>
-                        <Link to="/login">Log In</Link>
+                        <Link to="/Login">Log In</Link>
                     </MenubarTrigger>
                 </MenubarMenu>
             </Menubar>
