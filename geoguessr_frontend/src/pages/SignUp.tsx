@@ -1,15 +1,11 @@
 import axios from "axios";
 import { useState, useEffect } from "react";
 import { Breadcrumb, BreadcrumbItem, BreadcrumbList, BreadcrumbLink, BreadcrumbSeparator, BreadcrumbPage } from "../components/ui/breadcrumb";
-import { Content } from "@radix-ui/react-menubar";
-
 
 const SignUp = () => {
     useEffect(() => {
         document.body.style.overflow = "hidden";
-        return () => {
-            document.body.style.overflow = "";
-        };
+
     }, []);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
@@ -31,7 +27,7 @@ const SignUp = () => {
             console.log("SUCCESS:", response.data);
         } catch (err: any) {
             console.error(err);
-            setError("Log in attempt failed.");
+            setError("Sign up attempt failed.");
         } finally {
             setLoading(false);
         }
@@ -59,7 +55,6 @@ const SignUp = () => {
                         className="w-full max-w-md space-y-4 bg-zinc-800 p-6 rounded-lg"
                     >
                         <h1 className="text-2xl font-semibold text-center">Sign up</h1>
-
                         <input
                             name="email"
                             type="email"
@@ -67,14 +62,12 @@ const SignUp = () => {
                             required
                             className="w-full px-3 py-2 rounded bg-zinc-700 text-white"
                         />
-
                         <input
                             name="name"
                             placeholder="Username"
                             required
                             className="w-full px-3 py-2 rounded bg-zinc-700 text-white"
                         />
-
                         <input
                             name="password"
                             type="password"
@@ -82,15 +75,13 @@ const SignUp = () => {
                             required
                             className="w-full px-3 py-2 rounded bg-zinc-700 text-white"
                         />
-
                         {error && <p className="text-red-400 text-sm">{error}</p>}
-
                         <button
                             type="submit"
                             disabled={loading}
                             className="w-full bg-indigo-600 hover:bg-indigo-500 py-2 rounded font-medium"
                         >
-                            {loading ? "Loading..." : "Sign up"}
+                            {loading ? "Signing up..." : "Sign up"}
                         </button>
                     </form>
 

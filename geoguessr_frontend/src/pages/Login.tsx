@@ -1,16 +1,17 @@
-import axios from "axios";
+import api from "../api";
 import { useState, useEffect } from "react";
 import { Breadcrumb, BreadcrumbItem, BreadcrumbList, BreadcrumbLink, BreadcrumbSeparator, BreadcrumbPage } from "../components/ui/breadcrumb";
+import { useNavigate } from "react-router-dom";
 
 const Login = () => {
     useEffect(() => {
         document.body.style.overflow = "hidden";
-        return () => {
-            document.body.style.overflow = "";
-        };
+
     }, []);
+
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    const navigate = useNavigate();
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
@@ -21,12 +22,15 @@ const Login = () => {
         const values = Object.fromEntries(formData.entries());
 
         try {
-            const response = await axios.post(
-                "http://127.0.0.1/oe222ia/geoguessr_backend/api/login",
-                values,
-            );
+            const response = await api.post("/api/login", values);
 
+            localStorage.setItem("token", response.data.token);
+
+            window.dispatchEvent(new Event("auth-changed"));
             console.log("SUCCESS:", response.data);
+
+            document.body.style.overflow = "visible";
+            navigate("/");
         } catch (err: any) {
             console.error(err);
             setError("Log in attempt failed.");
@@ -58,7 +62,7 @@ const Login = () => {
                     >
                         <h1 className="text-2xl font-semibold text-center">Log In</h1>
                         <input
-                            name="username"
+                            name="name"
                             placeholder="Username"
                             required
                             className="w-full px-3 py-2 rounded bg-zinc-700 text-white"
@@ -77,7 +81,7 @@ const Login = () => {
                             disabled={loading}
                             className="w-full bg-indigo-600 hover:bg-indigo-500 py-2 rounded font-medium"
                         >
-                            {loading ? "Loading..." : "Sign up"}
+                            {loading ? "Logging in..." : "Log in"}
                         </button>
                     </form>
                     <a

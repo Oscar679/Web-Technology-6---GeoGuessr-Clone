@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\MapillaryController;
 use App\Http\Controllers\UserController;
+use Illuminate\Http\Request;
 
 Route::get('/mapillary/random', [MapillaryController::class, 'random']);
 
@@ -12,3 +13,10 @@ Route::get('/db-test', fn() => DB::select('SHOW TABLES'));
 
 Route::post('/register', [UserController::class, 'register']);
 
+Route::post('/login', [UserController::class, 'login']);
+
+Route::middleware('auth:sanctum')->get('/me', function (Request $request) {
+    return $request->user();
+});
+
+Route::middleware('auth:sanctum')->post('/logout', [UserController::class, 'logout']);

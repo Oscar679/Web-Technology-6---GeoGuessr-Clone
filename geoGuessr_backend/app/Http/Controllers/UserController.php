@@ -7,8 +7,7 @@ use Illuminate\Routing\Controller;
 
 
 use App\Models\User;
-use Illuminate\Support\Facades\Hash;
-
+use Illuminate\Support\Facades\Auth;
 
 class UserController extends Controller
 {
@@ -20,15 +19,42 @@ class UserController extends Controller
             'password' => 'required|min:6',
         ]);
 
-        $user = User::create([
+        $validated['password'] = bcrypt($validated['password']);
+
+        User::create([
             'email' => $validated['email'],
             'name' => $validated['name'],
-            'password' => Hash::make($validated['password']),
+            'password' => $validated['password'],
+        ]);
+    }
+
+    public function login(Request $request)
+    {
+        $validated = $request->validate([
+            'name' => 'required',
+            'password' => 'required',
         ]);
 
+        if (!Auth::attempt($validated)) {
+            return response()->json(['message' => 'Invalid credentials'], 401);
+        }
+
+        $user = $request->user();
+
+        $token = $user->createToken('auth_token')->plainTextToken;
+
         return response()->json([
-            'message' => 'User created',
+            'token' => $token,
             'user' => $user,
-        ], 201);
+        ]);
+    }
+
+    public function logout(Request $request)
+    {
+        $request->user()->tokens()->delete();
+
+        return response()->json([
+            'message' => 'Logged out'
+        ]);
     }
 }
