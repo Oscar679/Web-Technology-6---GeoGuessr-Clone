@@ -2,10 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Routing\Controller;
 use App\Services\MapillaryService;
 
-class MapillaryController
+class MapillaryController extends Controller
 {
     public function random(MapillaryService $mapillaryService)
     {
