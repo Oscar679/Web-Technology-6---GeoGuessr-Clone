@@ -84,14 +84,7 @@ class MapillaryService
 
             $image = json_decode($response->getBody(), true);
 
-            $duplicate = false;
-            for ($j = 0; $j < count($results); $j++) {
-                if (($results[$j]['lat'] - $image['geometry']['coordinates'][1]) < 0.0001 && ($results[$j]['lng'] - $image['geometry']['coordinates'][0]) < 0.0001) {
-                    $duplicate = true;
-                }
-            }
-
-            if ($duplicate) {
+            if ($this->isDuplicate($results, $image['geometry']['coordinates'][1], $image['geometry']['coordinates'][0])) {
                 $i--;
                 continue;
             }
@@ -103,5 +96,18 @@ class MapillaryService
             ];
         }
         return $results;
+    }
+
+    private function isDuplicate($results, $imageLat, $imageLng): bool
+    {
+        for ($i = 0; $i < count($results); $i++) {
+            if (
+                abs($results[$i]['lat'] - $imageLat) <
+                0.0001 && abs($results[$i]['lng'] - $imageLng) < 0.0001
+            ) {
+                return true;
+            }
+        }
+        return false;
     }
 }
