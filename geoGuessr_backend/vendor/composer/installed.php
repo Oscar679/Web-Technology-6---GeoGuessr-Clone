@@ -3,7 +3,7 @@
         'name' => '__root__',
         'pretty_version' => 'dev-main',
         'version' => 'dev-main',
-        'reference' => '56417608fb20f87a08f389b163ec425801af455d',
+        'reference' => '1b837ac01b1269692b35182eb7f821e95a5c4f83',
         'type' => 'library',
         'install_path' => __DIR__ . '/../../',
         'aliases' => array(),
@@ -13,7 +13,7 @@
         '__root__' => array(
             'pretty_version' => 'dev-main',
             'version' => 'dev-main',
-            'reference' => '56417608fb20f87a08f389b163ec425801af455d',
+            'reference' => '1b837ac01b1269692b35182eb7f821e95a5c4f83',
             'type' => 'library',
             'install_path' => __DIR__ . '/../../',
             'aliases' => array(),
@@ -118,8 +118,8 @@
         'psr/http-factory-implementation' => array(
             'dev_requirement' => false,
             'provided' => array(
-                0 => '^1.0',
-                1 => '1.0',
+                0 => '1.0',
+                1 => '^1.0',
             ),
         ),
         'psr/http-message' => array(
@@ -134,8 +134,8 @@
         'psr/http-message-implementation' => array(
             'dev_requirement' => false,
             'provided' => array(
-                0 => '^1.0 || ^2.0',
-                1 => '1.0',
+                0 => '1.0',
+                1 => '^1.0 || ^2.0',
             ),
         ),
         'psr/http-server-handler' => array(
