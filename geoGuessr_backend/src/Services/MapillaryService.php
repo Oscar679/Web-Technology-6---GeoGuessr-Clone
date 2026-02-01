@@ -9,17 +9,15 @@ class MapillaryService
     private string $token;
     private string $baseUrl = 'https://graph.mapillary.com';
     private Client $http;
+    private array $locations;
 
     public function __construct(string $token)
     {
         $this->token = $token;
         $this->http = new Client();
-    }
 
-    public function getRandomImage(): array
-    {
         // Major European cities with excellent Mapillary coverage
-        $locations = [
+        $this->locations = [
             ['lat' => 52.5200, 'lng' => 13.4050], // Berlin
             ['lat' => 48.8566, 'lng' => 2.3522],  // Paris
             ['lat' => 52.3676, 'lng' => 4.9041],  // Amsterdam
@@ -41,50 +39,69 @@ class MapillaryService
             ['lat' => 50.0755, 'lng' => 14.4378], // Prague
             ['lat' => 52.2297, 'lng' => 21.0122], // Warsaw
         ];
+    }
 
-        $location = $locations[array_rand($locations)];
-        $delta = 0.005; // Smaller delta in order to avoid 'image not found exception'
+    public function getRandomImage(int $count = 5): array
+    {
+        $results = [];
+        for ($i = 0; $i < $count; $i++) {
+            $location = $this->locations[array_rand($this->locations)];
+            $delta = 0.005; // Smaller delta in order to avoid 'image not found exception'
 
-        $bbox = implode(',', [
-            $location['lng'] - $delta,
-            $location['lat'] - $delta,
-            $location['lng'] + $delta,
-            $location['lat'] + $delta,
-        ]);
+            $bbox = implode(',', [
+                $location['lng'] - $delta,
+                $location['lat'] - $delta,
+                $location['lng'] + $delta,
+                $location['lat'] + $delta,
+            ]);
 
-        // Fetch image IDs in bounding box
-        $response = $this->http->get("{$this->baseUrl}/images", [
-            'query' => [
-                'access_token' => $this->token,
-                'fields' => 'id',
-                'bbox' => $bbox,
-                'limit' => 50,
-            ]
-        ]);
+            // Fetch image IDs in bounding box
+            $response = $this->http->get("{$this->baseUrl}/images", [
+                'query' => [
+                    'access_token' => $this->token,
+                    'fields' => 'id',
+                    'bbox' => $bbox,
+                    'limit' => 50,
+                ]
+            ]);
 
-        $data = json_decode($response->getBody(), true);
+            $data = json_decode($response->getBody(), true);
 
-        if (empty($data['data'])) {
-            throw new \Exception('No images found in this area');
+            if (empty($data['data'])) {
+                throw new \Exception('No images found in this area');
+            }
+
+            $ids = array_column($data['data'], 'id');
+            $randomId = $ids[array_rand($ids)];
+
+            // Fetch image details
+            $response = $this->http->get("{$this->baseUrl}/{$randomId}", [
+                'query' => [
+                    'access_token' => $this->token,
+                    'fields' => 'thumb_1024_url,geometry',
+                ]
+            ]);
+
+            $image = json_decode($response->getBody(), true);
+
+            $duplicate = false;
+            for ($j = 0; $j < count($results); $j++) {
+                if (($results[$j]['lat'] - $image['geometry']['coordinates'][1]) < 0.0001 && ($results[$j]['lng'] - $image['geometry']['coordinates'][0]) < 0.0001) {
+                    $duplicate = true;
+                }
+            }
+
+            if ($duplicate) {
+                $i--;
+                continue;
+            }
+
+            $results[] = [
+                'imageUrl' => $image['thumb_1024_url'],
+                'lat' => $image['geometry']['coordinates'][1],
+                'lng' => $image['geometry']['coordinates'][0],
+            ];
         }
-
-        $ids = array_column($data['data'], 'id');
-        $randomId = $ids[array_rand($ids)];
-
-        // Fetch image details
-        $response = $this->http->get("{$this->baseUrl}/{$randomId}", [
-            'query' => [
-                'access_token' => $this->token,
-                'fields' => 'thumb_1024_url,geometry',
-            ]
-        ]);
-
-        $image = json_decode($response->getBody(), true);
-
-        return [
-            'imageUrl' => $image['thumb_1024_url'],
-            'lat' => $image['geometry']['coordinates'][1],
-            'lng' => $image['geometry']['coordinates'][0],
-        ];
+        return $results;
     }
 }
