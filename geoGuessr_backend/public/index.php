@@ -13,8 +13,17 @@ require __DIR__ . '/../vendor/autoload.php';
 $dotenv = Dotenv::createImmutable(__DIR__ . '/..');
 $dotenv->load();
 
-$app = AppFactory::create(); # Creates Slim application
-$app->setBasePath('/oe222ia/geoguessr_backend'); # Required because of manually configuredAlias pathing.
+$app = AppFactory::create();
+$app->setBasePath('/oe222ia/geoguessr_backend');
+
+// CORS middleware - must be added before routes
+$app->add(function ($request, $handler) {
+    $response = $handler->handle($request);
+    return $response
+        ->withHeader('Access-Control-Allow-Origin', '*')
+        ->withHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS')
+        ->withHeader('Access-Control-Allow-Headers', 'Content-Type');
+});
 
 $app->get('/', function (Request $request, Response $response, $args) {
     $response->getBody()->write("Hello world!");

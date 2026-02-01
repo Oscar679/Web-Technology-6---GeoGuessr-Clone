@@ -68,7 +68,8 @@ class MapillaryService
             $data = json_decode($response->getBody(), true);
 
             if (empty($data['data'])) {
-                throw new \Exception('No images found in this area');
+                $i--;
+                continue;
             }
 
             $ids = array_column($data['data'], 'id');

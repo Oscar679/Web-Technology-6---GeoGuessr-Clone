@@ -25,12 +25,13 @@ class NavBar extends HTMLElement {
                                 <div class="hidden sm:ml-6 sm:block">
                                     <div class="flex space-x-4">
                                         <!-- Current: "bg-gray-900 text-white", Default: "text-gray-300 hover:bg-white/5 hover:text-white" -->
-                                        <a href="#" aria-current="page" class="rounded-md bg-gray-900 px-3 py-2 text-sm font-medium text-white">Dashboard</a>
-                                        <a href="#" class="rounded-md px-3 py-2 text-sm font-medium text-gray-300 hover:bg-white/5 hover:text-white">Team</a>
-                                        <a href="#" class="rounded-md px-3 py-2 text-sm font-medium text-gray-300 hover:bg-white/5 hover:text-white">Projects</a>
-                                        <a href="#" class="rounded-md px-3 py-2 text-sm font-medium text-gray-300 hover:bg-white/5 hover:text-white">Calendar</a>
+                                        <a href="#" class="rounded-md px-3 py-2 text-sm font-medium text-gray-300 hover:bg-white/5 hover:text-white">Leaderboard</a>
+                                        <a href="#" class="rounded-md px-3 py-2 text-sm font-medium text-gray-300 hover:bg-white/5 hover:text-white">Docs</a>
                                     </div>
-                                </div>
+                                        <div class="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
+                                            <a href="Game.html" aria-current="page" class="rounded-md bg-green-700 px-16 py-2 text-sm font-medium text-gray-100 hover:bg-green-500 hover:text-white">Start Game</a>
+                                        </div>
+                                    </div>
                             </div>
                             <div class="absolute inset-y-0 right-0 flex items-center pr-2 sm:static sm:inset-auto sm:ml-6 sm:pr-0">
                                 <button type="button" class="relative rounded-full p-1 text-gray-400 focus:outline-2 focus:outline-offset-2 focus:outline-indigo-500">
