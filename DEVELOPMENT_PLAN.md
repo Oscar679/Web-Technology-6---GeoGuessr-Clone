@@ -51,9 +51,9 @@ This project follows an agile, iterative development methodology. Each iteration
    - Configure `.htaccess` for Slim routing (if needed)
 
 ### Deliverables
-- [ ] `GET /api/health` returns `{"status": "ok"}`
-- [ ] Frontend loads with Tailwind CSS working
-- [ ] Application is deployed and accessible on melab
+- [] `GET /api/health` returns `{"status": "ok"}`
+- [] Frontend loads with Tailwind CSS working
+- [] Application is deployed and accessible on melab
 
 ### Definition of Done
 The application is deployed and a user can visit the URL and see a styled page. The API health endpoint responds correctly.
