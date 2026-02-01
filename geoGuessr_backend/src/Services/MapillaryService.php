@@ -18,32 +18,32 @@ class MapillaryService
 
     public function getRandomImage(): array
     {
-        // Swedish cities/towns with good Mapillary coverage
+        // Major European cities with excellent Mapillary coverage
         $locations = [
-            ['lat' => 59.3293, 'lng' => 18.0686], // Stockholm
-            ['lat' => 57.7089, 'lng' => 11.9746], // Göteborg
-            ['lat' => 55.6050, 'lng' => 13.0038], // Malmö
-            ['lat' => 59.8586, 'lng' => 17.6389], // Uppsala
-            ['lat' => 58.4108, 'lng' => 15.6214], // Linköping
-            ['lat' => 57.7826, 'lng' => 14.1618], // Jönköping
-            ['lat' => 59.2753, 'lng' => 15.2134], // Örebro
-            ['lat' => 56.0465, 'lng' => 12.6945], // Helsingborg
-            ['lat' => 58.5877, 'lng' => 16.1924], // Norrköping
-            ['lat' => 55.5600, 'lng' => 12.9982], // Lund
-            ['lat' => 63.8258, 'lng' => 20.2630], // Umeå
-            ['lat' => 60.6749, 'lng' => 17.1413], // Gävle
-            ['lat' => 56.6640, 'lng' => 16.3568], // Kalmar
-            ['lat' => 58.3806, 'lng' => 12.3252], // Trollhättan
-            ['lat' => 65.5848, 'lng' => 22.1547], // Luleå
-            ['lat' => 57.6348, 'lng' => 18.2948], // Visby
-            ['lat' => 62.3908, 'lng' => 17.3069], // Sundsvall
-            ['lat' => 56.8791, 'lng' => 14.8059], // Växjö
-            ['lat' => 59.6099, 'lng' => 16.5448], // Västerås
-            ['lat' => 67.8558, 'lng' => 20.2253], // Kiruna
+            ['lat' => 52.5200, 'lng' => 13.4050], // Berlin
+            ['lat' => 48.8566, 'lng' => 2.3522],  // Paris
+            ['lat' => 52.3676, 'lng' => 4.9041],  // Amsterdam
+            ['lat' => 50.8503, 'lng' => 4.3517],  // Brussels
+            ['lat' => 48.2082, 'lng' => 16.3738], // Vienna
+            ['lat' => 50.1109, 'lng' => 8.6821],  // Frankfurt
+            ['lat' => 51.2277, 'lng' => 6.7735],  // Düsseldorf
+            ['lat' => 53.5511, 'lng' => 9.9937],  // Hamburg
+            ['lat' => 48.1351, 'lng' => 11.5820], // Munich
+            ['lat' => 45.4642, 'lng' => 9.1900],  // Milan
+            ['lat' => 41.9028, 'lng' => 12.4964], // Rome
+            ['lat' => 55.6761, 'lng' => 12.5683], // Copenhagen
+            ['lat' => 59.9139, 'lng' => 10.7522], // Oslo
+            ['lat' => 60.1699, 'lng' => 24.9384], // Helsinki
+            ['lat' => 51.5074, 'lng' => -0.1278], // London
+            ['lat' => 40.4168, 'lng' => -3.7038], // Madrid
+            ['lat' => 41.3851, 'lng' => 2.1734],  // Barcelona
+            ['lat' => 47.3769, 'lng' => 8.5417],  // Zurich
+            ['lat' => 50.0755, 'lng' => 14.4378], // Prague
+            ['lat' => 52.2297, 'lng' => 21.0122], // Warsaw
         ];
 
         $location = $locations[array_rand($locations)];
-        $delta = 0.003; // Small bbox to stay under Mapillary's 0.01 sq deg limit
+        $delta = 0.005; // Smaller delta in order to avoid 'image not found exception'
 
         $bbox = implode(',', [
             $location['lng'] - $delta,
