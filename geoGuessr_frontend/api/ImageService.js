@@ -1,10 +1,13 @@
 import Service from "./AbstractService";
+import Game from "../components/GameComponents/logic/Game"
 
 class ImageService extends Service {
     constructor(parameter) {
         super();
         this.parameter = parameter;
         this.images = [];
+        this.coordinates = [];
+        this.game;
     }
 
     async fetchData() {
@@ -17,13 +20,24 @@ class ImageService extends Service {
             }
 
             const data = await response.json();
+
+            console.log(data);
             for (let i = 0; i < data.length; i++) {
                 this.images.push(data[i]['imageUrl']);
+                this.coordinates.push({
+                    lat: data[i].lat,
+                    lng: data[i].lng
+                });
             }
+            this.game = new Game(this.coordinates);
             return this.images;
         } catch (e) {
             throw new Error(`Response Status: ${e}`);
         }
+    }
+
+    getCoordinates() {
+        return this.coordinates;
     }
 }
 

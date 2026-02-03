@@ -1,15 +1,18 @@
 import ImageService from "../../../api/ImageService";
 import Swiper from "swiper";
 import "swiper/css";
+import Game from "../logic/Game"
 
 class StreetViewImage extends HTMLElement {
-    async connectedCallback() {
-        const service = new ImageService();
-
-        try {
-            const images = await service.fetchData();
-
-            this.innerHTML = `
+  constructor() {
+    super();
+    this.game;
+  }
+  async connectedCallback() {
+    const service = new ImageService();
+    try {
+      const images = await service.fetchData();
+      this.innerHTML = `
               <div class="swiper w-full h-full rounded-xl">
                 <div class="swiper-wrapper">
                   ${images.map(url => `
@@ -27,16 +30,18 @@ class StreetViewImage extends HTMLElement {
               </div>
             `;
 
-            new Swiper(this.querySelector('.swiper'), {
-                loop: true,
-                spaceBetween: 16,
-                grabCursor: true,
-            });
+      new Swiper(this.querySelector('.swiper'), {
+        loop: true,
+        spaceBetween: 16,
+        grabCursor: true,
+      });
 
-        } catch (err) {
-            console.error("Error:", err);
-        }
+      this.game = new Game(service.getCoordinates());
+    } catch (err) {
+      console.error("Error:", err);
     }
+  }
+
 }
 
 customElements.define("street-view-image", StreetViewImage);

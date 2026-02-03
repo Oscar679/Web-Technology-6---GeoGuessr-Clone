@@ -1,34 +1,50 @@
+import './StreetViewImage.js';
+import './OpenStreetMap.js';
+import './SubmitBtn.js';
+import Game from "../logic/Game.js"
+
 class GameContainer extends HTMLElement {
   connectedCallback() {
-    // Grab children BEFORE overwrite
-    const streetView = this.querySelector('[slot="street-view"]');
-    const map = this.querySelector('[slot="map"]');
-
     this.innerHTML = `
-      <div class="bg-gray-200 py-24 sm:py-32 min-h-screen">
+     <div class="bg-gray-200 py-24 sm:py-32 min-h-screen">
         <div class="mx-auto max-w-7xl px-6 lg:px-8">
+
           <div class="flex flex-col lg:flex-row gap-6 justify-center">
 
             <div class="w-full lg:w-[40vw] bg-white rounded-2xl shadow-lg p-4">
-              <div id="streetViewTarget" class="h-[26rem] rounded-xl overflow-hidden bg-black"></div>
+              <div class="h-[26rem] rounded-xl overflow-hidden bg-black">
+                <street-view-image></street-view-image>
+              </div>
             </div>
 
             <div class="w-full lg:w-[40vw] bg-white rounded-2xl shadow-lg p-4">
-              <div id="mapTarget" class="h-[26rem] rounded-xl overflow-hidden"></div>
+              <div class="h-[26rem] rounded-xl overflow-hidden">
+                <open-street-map></open-street-map>
+              </div>
             </div>
 
           </div>
+
+          <div class="mt-10 flex justify-center">
+            <submit-btn></submit-btn>
+          </div>
+
         </div>
       </div>
     `;
 
-    if (streetView) {
-      this.querySelector('#streetViewTarget').appendChild(streetView);
-    }
+    this.streetView = this.querySelector('street-view-image');
+    this.map = this.querySelector('open-street-map');
+    this.button = this.querySelector('submit-btn');
 
-    if (map) {
-      this.querySelector('#mapTarget').appendChild(map);
-    }
+    this.button.addEventListener("click", () => {
+      if (!Game.instance) {
+        console.error('Game not ready yet, please wait.');
+        return;
+      }
+      const guess = this.map.getGuess();
+      Game.instance.submitGuess(guess);
+    });
   }
 }
 

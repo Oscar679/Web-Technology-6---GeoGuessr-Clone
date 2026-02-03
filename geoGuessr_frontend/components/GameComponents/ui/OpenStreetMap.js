@@ -26,9 +26,6 @@ class OpenStreetMap extends HTMLElement {
             }
 
             this.guessCoordinates = { lat, lng };
-            this.dispatchEvent(new CustomEvent('guess', { detail: { lat, lng } }));
-
-            console.log(this.getGuess());
         });
     }
 
