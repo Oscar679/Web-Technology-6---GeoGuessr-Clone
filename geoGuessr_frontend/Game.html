@@ -3,10 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script type="module" src="./components/ui/NavBar.js"></script>
+    <script type="module" src="./components/GameComponents/ui/GameContainer.js"></script>
+    <script type="module" src="./components/GameComponents/ui/StreetViewImage.js"></script>
+    <script type="module" src="./components/GameComponents/ui/OpenStreetMap.js"></script>
+    <link rel="stylesheet" href="./src/index.css">
     <title>Document</title>
 </head>
 
 <body>
+    <nav-bar></nav-bar>
+    <game-container>
+        <street-view-image slot="street-view"></street-view-image>
+        <open-street-map slot="map"></open-street-map>
+    </game-container>
 </body>
 
 </html>
