@@ -1,4 +1,5 @@
 import Geolocation from "../logic/Geolocation"
+import GameService from "../../../api/GameService";
 
 // Singleton implementation
 class Game {
@@ -13,6 +14,9 @@ class Game {
         this.players = [];
         this.round = 0;
         this.locations = coordinates;
+
+        const test = new GameService();
+        test.fetchData();
     }
 
     submitGuess(guessedCoordinates) {
