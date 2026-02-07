@@ -5,6 +5,7 @@ use DI\ContainerBuilder;
 use Psr\Container\ContainerInterface;
 use App\Services\AuthService;
 
+// establish database connection
 return function (ContainerBuilder $builder) {
     $builder->addDefinitions([
         'settings' => function () {

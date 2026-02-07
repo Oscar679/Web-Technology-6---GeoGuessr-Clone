@@ -23,6 +23,7 @@ class Game {
         if (this.round < 5) {
             const distance = Geolocation.haversine(this.locations[this.round], guessedCoordinates);
             console.log(`The distance between your guess and actual location is: ${distance} kilometers`);
+            alert(distance);
             this.updateRound();
         } else {
             console.error(`Maximum amount of rounds have been met: ${this.round}`);

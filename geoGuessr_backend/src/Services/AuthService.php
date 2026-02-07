@@ -5,6 +5,7 @@ namespace App\Services;
 use Firebase\JWT\JWT;
 use Firebase\JWT\Key;
 
+// authorizes database connection
 class AuthService
 {
     private string $secret;
