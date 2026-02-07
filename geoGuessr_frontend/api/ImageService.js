@@ -29,7 +29,7 @@ class ImageService extends Service {
                     lng: data[i].lng
                 });
             }
-            this.game = new Game(this.coordinates);
+            Game.getInstance(this.coordinates);
             return this.images;
         } catch (e) {
             throw new Error(`Response Status: ${e}`);

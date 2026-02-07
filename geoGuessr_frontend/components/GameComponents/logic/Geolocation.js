@@ -1,13 +1,6 @@
-// Singleton implementation
+
 class Geolocation {
-    static instance;
     constructor(lat, lng) {
-        if (Geolocation.instance) {
-            return Geolocation.instance;
-        }
-
-        Geolocation.instance = this;
-
         this.lat = lat;
         this.lng = lng;
     }

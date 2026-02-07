@@ -5,18 +5,22 @@ import GameService from "../../../api/GameService";
 class Game {
     static instance;
     constructor(coordinates) {
-        if (Game.instance) {
-            return Game.instance;
-        }
-
-        Game.instance = this;
-
         this.players = [];
         this.round = 0;
         this.locations = coordinates;
 
         const test = new GameService();
-        test.fetchData();
+    }
+
+    static getInstance(coordinates) {
+        if (!Game.instance) {
+            if (!coordinates) {
+                throw new Error("Game must be instatiated with coordinates");
+            }
+            Game.instance = new Game(coordinates);
+        }
+
+        return Game.instance;
     }
 
     submitGuess(guessedCoordinates) {
