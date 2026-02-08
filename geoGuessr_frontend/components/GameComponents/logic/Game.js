@@ -9,6 +9,7 @@ class Game {
         this.round = 0;
         this.locations = coordinates;
         this.gameId = null; // backend sets this value
+        this.score = 0;
 
         this.gameService = new GameService();
     }
@@ -30,8 +31,9 @@ class Game {
             console.log(`The distance between your guess and actual location is: ${distance} kilometers`);
             alert(distance);
             this.updateRound();
+            this.score += distance; // for now score is just the distance, but we can make it more complex later on
         } else {
-            console.error(`Maximum amound of rounds played: ${this.round}`);
+            console.error(`Maximum amount of rounds played: ${this.round}`);
             return;
         }
     }
