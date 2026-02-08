@@ -4,6 +4,8 @@ use App\Services\UserService;
 use DI\ContainerBuilder;
 use Psr\Container\ContainerInterface;
 use App\Services\AuthService;
+use App\Services\GameService;
+use App\Services\MapillaryService;
 
 // establish database connection
 return function (ContainerBuilder $builder) {
@@ -24,6 +26,17 @@ return function (ContainerBuilder $builder) {
 
         AuthService::class => function () {
             return new AuthService();
+        },
+
+        GameService::class => function (ContainerInterface $c) {
+            return new GameService(
+                $c->get(MapillaryService::class),
+                $c->get(PDO::class)
+            );
+        },
+
+        MapillaryService::class => function () {
+            return new MapillaryService($_ENV['MAPILLARY_TOKEN']);
         }
     ]);
 };

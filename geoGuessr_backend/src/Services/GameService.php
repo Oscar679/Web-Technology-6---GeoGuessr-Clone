@@ -3,19 +3,19 @@
 namespace App\Services;
 
 use App\Services\MapillaryService;
-use App\Services\UserService;
+use PDO;
 
 class GameService
 {
-    private string $id;
     private MapillaryService $mapillary;
-    private UserService $user;
+    private PDO $pdo;
 
-    public function __construct(MapillaryService $mapillary, UserService $user)
-    {
-        $this->id = $this->generateId();
+    public function __construct(
+        MapillaryService $mapillary,
+        PDO $pdo
+    ) {
         $this->mapillary = $mapillary;
-        $this->user = $user;
+        $this->pdo = $pdo;
     }
 
     private function generateId(): string
@@ -23,14 +23,37 @@ class GameService
         return bin2hex(random_bytes(16));
     }
 
-    public function start(): array
+    public function start(int $userId): array
     {
-        $images = $this->mapillary->getRandomImage();
+        $gameId = $this->generateId();
+
+        $stmt = $this->pdo->prepare(
+            "INSERT INTO games (game_id, created_by)
+             VALUES (:game_id, :user_id)"
+        );
+
+        $stmt->execute([
+            "game_id" => $gameId,
+            "user_id" => $userId
+        ]);
 
         return [
-            'id' => $this->id,
-            'images' => $images,
-            'user' => $this->user->getCurrentUser()
+            "gameId" => $gameId,
+            "images" => $this->mapillary->getRandomImage()
         ];
+    }
+
+    public function saveResult(string $gameId, int $userId, int $score): void
+    {
+        $stmt = $this->pdo->prepare(
+            "INSERT INTO game_results (game_id, user_id, score)
+             VALUES (:game_id, :user_id, :score)"
+        );
+
+        $stmt->execute([
+            "game_id" => $gameId,
+            "user_id" => $userId,
+            "score"   => $score
+        ]);
     }
 }

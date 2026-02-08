@@ -8,8 +8,9 @@ class Game {
         this.players = [];
         this.round = 0;
         this.locations = coordinates;
+        this.gameId = null; // backend sets this value
 
-        const test = new GameService();
+        this.gameService = new GameService();
     }
 
     static getInstance(coordinates) {
@@ -30,13 +31,21 @@ class Game {
             alert(distance);
             this.updateRound();
         } else {
-            console.error(`Maximum amount of rounds have been met: ${this.round}`);
+            console.error(`Maximum amound of rounds played: ${this.round}`);
             return;
         }
     }
 
     updateRound() {
         this.round += 1;
+        if (this.round == 5) {
+            this.gameService.saveResult(Game.instance);
+            return;
+        }
+    }
+
+    setGameId(gameId) {
+        this.gameId = gameId;
     }
 }
 

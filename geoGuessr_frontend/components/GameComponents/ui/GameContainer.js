@@ -27,7 +27,7 @@ class GameContainer extends HTMLElement {
 
           <div class="mt-10 flex justify-center">
             <submit-btn class="rounded-md bg-green-700 px-16 py-3 text-sm font-medium text-gray-100
-               hover:bg-green-500 hover:text-white transition-colors"></submit-btn>
+               hover:bg-green-500 hover:text-white transition-colors cursor-pointer"></submit-btn>
           </div>
 
         </div>
@@ -42,11 +42,19 @@ class GameContainer extends HTMLElement {
 
     this.button.addEventListener("click", () => {
       const guess = this.map.getGuess();
-      if (!Game.instance) {
-        console.error('Game is not ready yet.');
+      if (!guess) {
+        alert('You must make a guess.');
         return;
       }
-      Game.instance.submitGuess(guess);
+      let game;
+      try {
+        game = Game.getInstance();
+      } catch (e) {
+        console.error(`Game not ready yet: ${e}`);
+        return;
+      }
+      game.submitGuess(guess);
+      this.streetView.nextImage();
     });
   }
 }

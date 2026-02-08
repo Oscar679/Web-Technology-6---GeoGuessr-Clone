@@ -21,6 +21,7 @@ class LogIn {
         console.log("Submitting login:", name, password);
         const res = await this.userService.logIn(name, password);
         if (res.token) {
+            localStorage.setItem("token", res.token);
             console.log('log in successful');
         } else {
             console.error('log in failed');

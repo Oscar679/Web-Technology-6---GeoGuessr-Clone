@@ -3,26 +3,47 @@ import Service from "./AbstractService";
 class GameService extends Service {
     constructor() {
         super();
-
     }
 
     async fetchData() {
-        const url = 'http://127.0.0.1/oe222ia/geoguessr_backend/api/startgame';
+        const token = localStorage.getItem("token");
 
-        try {
-            const response = await fetch(url, {
-                method: "PUT"
-            });
-            if (!response.ok) {
-                throw new Error(`Response Status: ${response.status}`);
+        const response = await fetch(
+            "http://localhost/oe222ia/geoguessr_backend/api/startgame",
+            {
+                method: "PUT",
+                headers: {
+                    "Authorization": `Bearer ${token}`,
+                    "Content-Type": "application/json"
+                },
+                mode: "cors"
             }
+        );
 
-            const data = await response.json();
-
-            console.log(data);
-        } catch (e) {
-            throw new Error(`Response Status: ${e}`);
+        if (!response.ok) {
+            throw new Error(`HTTP ${response.status}`);
         }
+
+        const data = await response.json();
+        return data;
+    }
+
+    async saveResult(game) {
+        const token = localStorage.getItem("token");
+
+        await fetch(
+            `http://127.0.0.1/oe222ia/geoguessr_backend/api/games/${game.gameId}/result`,
+            {
+                method: "POST",
+                headers: {
+                    "Authorization": `Bearer ${token}`,
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    score: game.score ?? 0
+                })
+            }
+        );
     }
 }
 
