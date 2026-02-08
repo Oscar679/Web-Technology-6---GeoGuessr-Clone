@@ -34,7 +34,7 @@ return function (ContainerBuilder $builder) {
                 $c->get(PDO::class)
             );
         },
-
+        
         MapillaryService::class => function () {
             return new MapillaryService($_ENV['MAPILLARY_TOKEN']);
         }

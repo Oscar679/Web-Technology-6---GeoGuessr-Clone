@@ -8,6 +8,8 @@ use App\Services\AuthService;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Slim\Factory\AppFactory;
+use Slim\Exception\HttpMethodNotAllowedException;
+use Slim\Exception\HttpNotFoundException;
 use Dotenv\Dotenv;
 use DI\ContainerBuilder;
 
@@ -42,6 +44,13 @@ $app->setBasePath('/oe222ia/geoguessr_backend');
 
 /*
 |--------------------------------------------------------------------------
+| ROUTING + ERROR MIDDLEWARE
+|--------------------------------------------------------------------------
+*/
+$app->addRoutingMiddleware();
+
+/*
+|--------------------------------------------------------------------------
 | OPTIONS (PRE-FLIGHT) – OBLIGATORISK
 |--------------------------------------------------------------------------
 */
@@ -54,21 +63,60 @@ $app->options('/{routes:.+}', function (Request $request, Response $response) {
 | CORS MIDDLEWARE (SKA LIGGA FÖRE AUTH)
 |--------------------------------------------------------------------------
 */
-$corsMiddleware = function (Request $request, $handler) {
+$allowedOrigins = [
+    'http://localhost:5173',
+    'http://127.0.0.1:5173',
+];
+
+$corsMiddleware = function (Request $request, $handler) use ($allowedOrigins) {
     if ($request->getMethod() === 'OPTIONS') {
         $response = new \Slim\Psr7\Response();
     } else {
         $response = $handler->handle($request);
     }
 
+    $origin = $request->getHeaderLine('Origin');
+    if ($origin && in_array($origin, $allowedOrigins, true)) {
+        $response = $response->withHeader('Access-Control-Allow-Origin', $origin);
+    }
+
     return $response
-        ->withHeader('Access-Control-Allow-Origin', 'http://localhost:5173')
+        ->withHeader('Vary', 'Origin')
         ->withHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS')
         ->withHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization')
         ->withHeader('Access-Control-Allow-Credentials', 'true');
 };
 
 $app->add($corsMiddleware);
+
+// Ensure error responses also include CORS headers (avoid browser CORS masking)
+$errorMiddleware = $app->addErrorMiddleware(true, true, true);
+$errorMiddleware->setDefaultErrorHandler(
+    function (Request $request, Throwable $exception) use ($app, $allowedOrigins) {
+        $response = $app->getResponseFactory()->createResponse();
+
+        $status = 500;
+        if ($exception instanceof HttpMethodNotAllowedException) {
+            $status = 405;
+        } elseif ($exception instanceof HttpNotFoundException) {
+            $status = 404;
+        }
+
+        $origin = $request->getHeaderLine('Origin');
+        if ($origin && in_array($origin, $allowedOrigins, true)) {
+            $response = $response->withHeader('Access-Control-Allow-Origin', $origin);
+        }
+
+        $response->getBody()->write(json_encode(['error' => $exception->getMessage()]));
+        return $response
+            ->withHeader('Vary', 'Origin')
+            ->withHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS')
+            ->withHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization')
+            ->withHeader('Access-Control-Allow-Credentials', 'true')
+            ->withHeader('Content-Type', 'application/json')
+            ->withStatus($status);
+    }
+);
 
 /*
 |--------------------------------------------------------------------------

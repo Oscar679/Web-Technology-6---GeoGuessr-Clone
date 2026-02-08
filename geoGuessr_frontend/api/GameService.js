@@ -32,7 +32,7 @@ class GameService extends Service {
         const token = localStorage.getItem("token");
 
         await fetch(
-            `http://127.0.0.1/oe222ia/geoguessr_backend/api/games/${game.gameId}/result`,
+            `http://localhost/oe222ia/geoguessr_backend/api/games/${game.gameId}/result`,
             {
                 method: "POST",
                 headers: {
