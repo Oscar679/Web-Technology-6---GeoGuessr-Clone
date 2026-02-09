@@ -206,6 +206,16 @@ $app->group('/api', function ($group) {
         return $response->withHeader('Content-Type', 'application/json');
     });
 
+    // Get leaderboard results
+    $group->get('/games/{gameId}/results', function (Request $request, Response $response, array $args) {
+        /** @var GameService $gameService */
+        $gameService = $this->get(GameService::class);
+        $results = $gameService->getResults($args['gameId']);
+
+        $response->getBody()->write(json_encode(['results' => $results]));
+        return $response->withHeader('Content-Type', 'application/json');
+    });
+
 })->add($authMiddleware);
 
 /*
@@ -241,6 +251,15 @@ $app->post('/api/login', function (Request $request, Response $response) {
     $token = $authService->createToken($user['id'], $user['name']);
 
     $response->getBody()->write(json_encode(['token' => $token]));
+    return $response->withHeader('Content-Type', 'application/json');
+});
+
+$app->get('/api/leaderboard', function (Request $request, Response $response) {
+    /** @var GameService $gameService */
+    $gameService = $this->get(GameService::class);
+    $results = $gameService->getGlobalLeaderboard();
+
+    $response->getBody()->write(json_encode(['results' => $results]));
     return $response->withHeader('Content-Type', 'application/json');
 });
 
