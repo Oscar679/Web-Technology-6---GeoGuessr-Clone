@@ -133,7 +133,14 @@ class GameService
                         WHERE gr2.game_id = gr.game_id
                           AND gr2.user_id <> :user_id_opponent
                         LIMIT 1
-                    ) AS opponent_name
+                    ) AS opponent_name,
+                    (
+                        SELECT gr2.score
+                        FROM game_results gr2
+                        WHERE gr2.game_id = gr.game_id
+                          AND gr2.user_id <> :user_id_opponent_score
+                        LIMIT 1
+                    ) AS opponent_score
              FROM game_results gr
              WHERE gr.user_id = :user_id_main
              ORDER BY gr.completed_at DESC
@@ -142,7 +149,8 @@ class GameService
 
         $stmt->execute([
             "user_id_main" => $userId,
-            "user_id_opponent" => $userId
+            "user_id_opponent" => $userId,
+            "user_id_opponent_score" => $userId
         ]);
 
         return $stmt->fetchAll();

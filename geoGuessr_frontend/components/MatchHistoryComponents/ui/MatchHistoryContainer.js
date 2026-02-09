@@ -23,6 +23,7 @@ class MatchHistoryContainer extends HTMLElement {
                             Games
                         </div>
                         <div class="p-6">
+                            <div data-summary class="mb-4 text-sm text-gray-700"></div>
                             <div data-status class="text-sm text-gray-600">Loading matches...</div>
                             <div data-list class="hidden"></div>
                         </div>
@@ -41,6 +42,7 @@ class MatchHistoryContainer extends HTMLElement {
 
         const status = this.querySelector("[data-status]");
         const list = this.querySelector("[data-list]");
+        const summary = this.querySelector("[data-summary]");
 
         const gameService = new GameService();
         try {
@@ -48,9 +50,24 @@ class MatchHistoryContainer extends HTMLElement {
             const games = Array.isArray(data.games) ? data.games : [];
 
             if (games.length === 0) {
+                summary.textContent = "";
                 status.textContent = "No games played yet.";
                 return;
             }
+
+            const finishedGames = games.filter((row) => row.opponent_score !== null && row.opponent_score !== undefined);
+            const wins = finishedGames.filter((row) => row.score < row.opponent_score).length;
+            const losses = finishedGames.filter((row) => row.score > row.opponent_score).length;
+            const ties = finishedGames.filter((row) => row.score === row.opponent_score).length;
+            const total = finishedGames.length;
+            const winPct = total > 0 ? Math.round((wins / total) * 100) : 0;
+            summary.innerHTML = `
+                <span class="font-medium">Record:</span>
+                <span class="text-green-700">${wins}W</span>
+                <span class="text-gray-400">-</span>
+                <span class="text-red-700">${losses}L</span>
+                <span class="ml-2 text-gray-500">(${winPct}% win)</span>
+            `;
 
             status.classList.add("hidden");
             list.classList.remove("hidden");
@@ -72,8 +89,18 @@ class MatchHistoryContainer extends HTMLElement {
                                 const minutesAgo = Math.max(0, Math.floor(diffMs / 60000));
                                 const hoursAgo = Math.floor(minutesAgo / 60);
                                 const timeLabel = hoursAgo >= 1 ? `${hoursAgo}h ago` : `${minutesAgo}m ago`;
+                                let outcomeClass = "bg-white";
+                                if (row.opponent_score !== null && row.opponent_score !== undefined) {
+                                    if (row.score < row.opponent_score) {
+                                        outcomeClass = "bg-green-50";
+                                    } else if (row.score > row.opponent_score) {
+                                        outcomeClass = "bg-red-50";
+                                    } else {
+                                        outcomeClass = "bg-gray-50";
+                                    }
+                                }
                                 return `
-                                <tr class="border-t border-gray-100">
+                                <tr class="border-t border-gray-100 ${outcomeClass}">
                                     <td class="py-2 pr-4 font-mono text-xs">${row.game_id}</td>
                                     <td class="py-2 pr-4">${row.score}</td>
                                     <td class="py-2 pr-4">${row.opponent_name ?? "Waiting"}</td>
