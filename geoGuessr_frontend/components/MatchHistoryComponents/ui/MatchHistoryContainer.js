@@ -15,7 +15,7 @@ class MatchHistoryContainer extends HTMLElement {
                             <h1 class="text-2xl font-semibold text-gray-900">Match History</h1>
                             <p class="text-sm text-gray-600">Your recent games</p>
                         </div>
-                        <a class="text-sm font-medium text-green-700 hover:text-green-600" href="Game.html">Back to game</a>
+                        <a class="text-sm font-medium text-green-700 hover:text-green-600" href="index.html">Back to home</a>
                     </div>
 
                     <div class="mt-8 rounded-xl bg-white shadow-lg">

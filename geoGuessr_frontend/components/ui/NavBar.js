@@ -20,7 +20,20 @@ class NavBar extends HTMLElement {
                             </div>
                             <div class="flex flex-1 items-center justify-center sm:items-stretch sm:justify-start">
                                 <div class="flex shrink-0 items-center">
-                                    <img src="https://tailwindcss.com/plus-assets/img/logos/mark.svg?color=indigo&shade=500" alt="Your Company" class="h-8 w-auto" />
+                                    <a href="index.html" class="text-gray-200 hover:text-white" aria-label="Home">
+                                        <svg viewBox="0 0 24 24" class="h-8 w-8" aria-hidden="true">
+                                            <defs>
+                                                <radialGradient id="globeOcean" cx="35%" cy="30%" r="70%">
+                                                    <stop offset="0%" stop-color="#60a5fa" />
+                                                    <stop offset="100%" stop-color="#1e3a8a" />
+                                                </radialGradient>
+                                            </defs>
+                                            <circle cx="12" cy="12" r="9" fill="url(#globeOcean)" />
+                                            <path d="M6.5 9.5c1.2-2 3.4-3 5.6-2.4 1.4.4 2.5 1.3 3.9 1.5 1.2.2 1.7-.4 2.7-1.1-.3 2.8-2.1 5.1-5 5.8-2 .5-3.7-.2-5.3-1.4-.9-.7-1.7-1.6-1.9-2.4z" fill="#22c55e" />
+                                            <path d="M8.3 15.1c.9-.8 2-.9 3.1-.6 1.3.3 2.1 1.3 3.2 1.8.7.3 1.5.2 2.3-.1-1 2.1-3.1 3.5-5.6 3.5-1.7 0-3.3-.7-4.3-1.9.4-.9.7-1.6 1.3-2.7z" fill="#16a34a" />
+                                            <circle cx="12" cy="12" r="9" fill="none" stroke="rgba(255,255,255,0.35)" stroke-width="0.6" />
+                                        </svg>
+                                    </a>
                                 </div>
                                 <div class="hidden sm:ml-6 sm:block">
                                     <div class="flex space-x-4">

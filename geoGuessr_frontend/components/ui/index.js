@@ -2,7 +2,7 @@ import ImageService from '../../api/ImageService';
 class Index extends HTMLElement {
   connectedCallback() {
     this.innerHTML = `
-    <div class="bg-gray-200 py-24 sm:py-32 min-h-screen">
+    <div class="bg-gray-100 py-24 sm:py-32 min-h-screen">
       <div class="mx-auto mt-20 max-w-7xl px-6 lg:px-8">
         <div class="mx-auto max-w-2xl lg:text-center">
           <h2 class="text-base/7 font-semibold text-indigo-600">Geolocation Guesser</h2>
