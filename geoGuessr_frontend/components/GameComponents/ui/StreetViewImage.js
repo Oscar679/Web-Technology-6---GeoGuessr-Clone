@@ -9,11 +9,32 @@ class StreetViewImage extends HTMLElement {
     this.game;
     this.images;
     this.swiper;
+    this._initialized = false;
   }
   async connectedCallback() {
+    if (this._initialized) {
+      return;
+    }
+    this._initialized = true;
+    const token = localStorage.getItem("token");
+    if (!token) {
+      window.location.href = "login.html";
+      return;
+    }
     const gameService = new GameService();
     try {
-      const data = await gameService.fetchData();
+      const params = new URLSearchParams(window.location.search);
+      const existingGameId = params.get("gameId");
+      const data = existingGameId
+        ? await gameService.getGame(existingGameId)
+        : await gameService.startGame();
+
+      if (!existingGameId) {
+        const url = new URL(window.location.href);
+        url.searchParams.set("gameId", data.gameId);
+        window.history.replaceState({}, "", url.toString());
+      }
+
       this.images = data.images;
       this.innerHTML = `
               <div class="swiper w-full h-full rounded-xl">
@@ -42,6 +63,10 @@ class StreetViewImage extends HTMLElement {
 
       const game = Game.getInstance(coordinates);
       game.setGameId(data.gameId); // backend sets gameId
+      this.dispatchEvent(new CustomEvent("game-ready", {
+        detail: { gameId: data.gameId },
+        bubbles: true
+      }));
 
     } catch (err) {
       console.error("Error:", err);

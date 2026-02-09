@@ -5,13 +5,35 @@ class GameService extends Service {
         super();
     }
 
-    async fetchData() {
+    async startGame() {
         const token = localStorage.getItem("token");
 
         const response = await fetch(
             "http://localhost/oe222ia/geoguessr_backend/api/startgame",
             {
                 method: "PUT",
+                headers: {
+                    "Authorization": `Bearer ${token}`,
+                    "Content-Type": "application/json"
+                },
+                mode: "cors"
+            }
+        );
+
+        if (!response.ok) {
+            throw new Error(`HTTP ${response.status}`);
+        }
+
+        const data = await response.json();
+        return data;
+    }
+
+    async getGame(gameId) {
+        const token = localStorage.getItem("token");
+        const response = await fetch(
+            `http://localhost/oe222ia/geoguessr_backend/api/games/${gameId}`,
+            {
+                method: "GET",
                 headers: {
                     "Authorization": `Bearer ${token}`,
                     "Content-Type": "application/json"

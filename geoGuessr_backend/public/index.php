@@ -169,6 +169,22 @@ $app->group('/api', function ($group) {
         return $response->withHeader('Content-Type', 'application/json');
     });
 
+    // Load existing game (requires auth)
+    $group->get('/games/{gameId}', function (Request $request, Response $response, array $args) {
+        /** @var GameService $gameService */
+        $gameService = $this->get(GameService::class);
+
+        try {
+            $data = $gameService->getGame($args['gameId']);
+        } catch (\RuntimeException $e) {
+            $response->getBody()->write(json_encode(['error' => $e->getMessage()]));
+            return $response->withStatus(404)->withHeader('Content-Type', 'application/json');
+        }
+
+        $response->getBody()->write(json_encode($data));
+        return $response->withHeader('Content-Type', 'application/json');
+    });
+
     // Save result
     $group->post('/games/{gameId}/result', function (
         Request $request,
@@ -189,6 +205,7 @@ $app->group('/api', function ($group) {
         $response->getBody()->write(json_encode(['status' => 'saved']));
         return $response->withHeader('Content-Type', 'application/json');
     });
+
 })->add($authMiddleware);
 
 /*
@@ -225,6 +242,31 @@ $app->post('/api/login', function (Request $request, Response $response) {
 
     $response->getBody()->write(json_encode(['token' => $token]));
     return $response->withHeader('Content-Type', 'application/json');
+});
+
+$app->post('/api/register', function (Request $request, Response $response) {
+    $data = json_decode($request->getBody()->getContents(), true);
+
+    $name = isset($data['name']) ? trim((string)$data['name']) : '';
+    $password = isset($data['password']) ? (string)$data['password'] : '';
+
+    if ($name === '' || $password === '') {
+        $response->getBody()->write(json_encode(['error' => 'Name and password are required']));
+        return $response->withStatus(400)->withHeader('Content-Type', 'application/json');
+    }
+
+    /** @var UserService $userService */
+    $userService = $this->get(UserService::class);
+
+    try {
+        $userService->addUser($name, $password);
+    } catch (\Throwable $e) {
+        $response->getBody()->write(json_encode(['error' => 'Unable to create user']));
+        return $response->withStatus(400)->withHeader('Content-Type', 'application/json');
+    }
+
+    $response->getBody()->write(json_encode(['status' => 'created']));
+    return $response->withStatus(201)->withHeader('Content-Type', 'application/json');
 });
 
 /*

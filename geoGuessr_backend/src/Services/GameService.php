@@ -26,20 +26,51 @@ class GameService
     public function start(int $userId): array
     {
         $gameId = $this->generateId();
+        $images = $this->mapillary->getRandomImage();
 
         $stmt = $this->pdo->prepare(
-            "INSERT INTO games (game_id, created_by)
-             VALUES (:game_id, :user_id)"
+            "INSERT INTO games (game_id, created_by, locations)
+             VALUES (:game_id, :user_id, :locations)"
         );
 
         $stmt->execute([
             "game_id" => $gameId,
-            "user_id" => $userId
+            "user_id" => $userId,
+            "locations" => json_encode($images)
         ]);
 
         return [
             "gameId" => $gameId,
-            "images" => $this->mapillary->getRandomImage()
+            "images" => $images
+        ];
+    }
+
+    public function getGame(string $gameId): array
+    {
+        $stmt = $this->pdo->prepare(
+            "SELECT game_id, locations
+             FROM games
+             WHERE game_id = :game_id
+             LIMIT 1"
+        );
+
+        $stmt->execute([
+            "game_id" => $gameId
+        ]);
+
+        $row = $stmt->fetch();
+        if (!$row) {
+            throw new \RuntimeException("Game not found");
+        }
+
+        $images = json_decode($row['locations'], true);
+        if (!is_array($images)) {
+            throw new \RuntimeException("Game data invalid");
+        }
+
+        return [
+            "gameId" => $row['game_id'],
+            "images" => $images
         ];
     }
 

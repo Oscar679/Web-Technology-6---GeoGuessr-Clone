@@ -9,6 +9,24 @@ class GameContainer extends HTMLElement {
      <div class="bg-gray-200 py-24 sm:py-32 min-h-screen">
         <div class="mx-auto max-w-7xl px-6 lg:px-8">
 
+          <div class="mb-6 flex flex-col sm:flex-row sm:items-center gap-3">
+            <div class="text-sm text-gray-700 font-medium">Shareable link</div>
+            <div class="flex w-full sm:max-w-xl gap-2">
+              <input
+                data-share-link
+                type="text"
+                readonly
+                class="w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-800"
+                value="Generating..."
+              />
+              <button
+                data-copy-link
+                class="rounded-md bg-gray-900 px-3 py-2 text-sm font-medium text-white hover:bg-gray-700 transition-colors"
+                type="button"
+              >Copy</button>
+            </div>
+          </div>
+
           <div class="flex flex-col lg:flex-row gap-6 justify-center">
 
             <div class="w-full lg:w-[40vw] bg-white rounded-2xl shadow-lg p-4">
@@ -37,8 +55,35 @@ class GameContainer extends HTMLElement {
     this.streetView = this.querySelector('street-view-image');
     this.map = this.querySelector('open-street-map');
     this.button = this.querySelector('submit-btn');
+    this.shareInput = this.querySelector('[data-share-link]');
+    this.copyButton = this.querySelector('[data-copy-link]');
 
     this.button.innerHTML = 'Guess';
+
+    this.copyButton.addEventListener("click", async () => {
+      if (!this.shareInput.value || this.shareInput.value === "Generating...") {
+        return;
+      }
+      try {
+        await navigator.clipboard.writeText(this.shareInput.value);
+        this.copyButton.innerHTML = 'Copied';
+        setTimeout(() => {
+          this.copyButton.innerHTML = 'Copy';
+        }, 1200);
+      } catch (e) {
+        console.error("Clipboard failed:", e);
+      }
+    });
+
+    this.addEventListener("game-ready", (event) => {
+      const gameId = event.detail?.gameId;
+      if (!gameId) {
+        return;
+      }
+      const url = new URL(window.location.href);
+      url.searchParams.set("gameId", gameId);
+      this.shareInput.value = url.toString();
+    });
 
     this.button.addEventListener("click", () => {
       const guess = this.map.getGuess();
