@@ -216,6 +216,18 @@ $app->group('/api', function ($group) {
         return $response->withHeader('Content-Type', 'application/json');
     });
 
+    // Get current user's match history
+    $group->get('/users/me/games', function (Request $request, Response $response) {
+        $user = $request->getAttribute('user');
+
+        /** @var GameService $gameService */
+        $gameService = $this->get(GameService::class);
+        $history = $gameService->getUserHistory($user->user_id);
+
+        $response->getBody()->write(json_encode(['games' => $history]));
+        return $response->withHeader('Content-Type', 'application/json');
+    });
+
 })->add($authMiddleware);
 
 /*

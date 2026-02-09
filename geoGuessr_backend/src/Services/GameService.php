@@ -119,6 +119,35 @@ class GameService
         return $stmt->fetchAll();
     }
 
+    public function getUserHistory(int $userId, int $limit = 50): array
+    {
+        $limit = max(1, min($limit, 200));
+        $stmt = $this->pdo->prepare(
+            "SELECT gr.game_id,
+                    gr.score,
+                    gr.completed_at,
+                    (
+                        SELECT u2.name
+                        FROM game_results gr2
+                        INNER JOIN users u2 ON u2.id = gr2.user_id
+                        WHERE gr2.game_id = gr.game_id
+                          AND gr2.user_id <> :user_id_opponent
+                        LIMIT 1
+                    ) AS opponent_name
+             FROM game_results gr
+             WHERE gr.user_id = :user_id_main
+             ORDER BY gr.completed_at DESC
+             LIMIT {$limit}"
+        );
+
+        $stmt->execute([
+            "user_id_main" => $userId,
+            "user_id_opponent" => $userId
+        ]);
+
+        return $stmt->fetchAll();
+    }
+
     public function saveResult(string $gameId, int $userId, int $score): void
     {
         $stmt = $this->pdo->prepare(
@@ -148,7 +177,10 @@ class GameService
 
         foreach ($userIds as $uid) {
             $gamesPlayedStmt = $this->pdo->prepare(
-                "SELECT COUNT(*) FROM game_results WHERE user_id = :user_id"
+                "SELECT COUNT(*)
+                 FROM game_results gr
+                 WHERE gr.user_id = :user_id
+                   AND (SELECT COUNT(*) FROM game_results grc WHERE grc.game_id = gr.game_id) >= 2"
             );
             $gamesPlayedStmt->execute(["user_id" => $uid]);
             $gamesPlayed = (int)$gamesPlayedStmt->fetchColumn();
@@ -157,6 +189,7 @@ class GameService
                 "SELECT COUNT(*)
                  FROM game_results gr1
                  WHERE gr1.user_id = :user_id
+                   AND (SELECT COUNT(*) FROM game_results grc WHERE grc.game_id = gr1.game_id) >= 2
                    AND gr1.score = (
                        SELECT MIN(gr2.score)
                        FROM game_results gr2
