@@ -3,3 +3,8 @@
 body {
     background-color: rgb(229, 231, 235);
 }
+
+.index-page,
+.game-page {
+    overflow: hidden;
+}

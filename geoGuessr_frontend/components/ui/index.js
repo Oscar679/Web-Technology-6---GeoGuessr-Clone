@@ -1,4 +1,4 @@
-import ImageService from '../../api/ImageService';
+
 class Index extends HTMLElement {
   connectedCallback() {
     this.innerHTML = `
