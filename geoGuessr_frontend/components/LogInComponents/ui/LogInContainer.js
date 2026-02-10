@@ -1,5 +1,4 @@
 
-import '../../GameComponents/ui/SubmitBtn';
 import LogIn from './logic/LogIn';
 
 class LogInContainer extends HTMLElement {
@@ -30,9 +29,11 @@ class LogInContainer extends HTMLElement {
       </div>
 
       <div>
-        <submit-btn class="flex w-full justify-center rounded-md bg-indigo-600 px-3 py-1.5 text-sm/6 font-semibold text-white shadow-xs hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 cursor-pointer"></submit-btn>
+        <button id="submit" type="submit" class="flex w-full justify-center rounded-md bg-indigo-600 px-3 py-1.5 text-sm/6 font-semibold text-white shadow-xs hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 cursor-pointer">Log in</button>
     </div>
     </form>
+
+    <p data-status class="mt-4 text-center text-sm text-gray-600"></p>
 
     <p class="mt-10 text-center text-sm/6 text-gray-500">
       Not a member?
@@ -42,20 +43,41 @@ class LogInContainer extends HTMLElement {
 </div>
     `;
 
+    this.form = this.querySelector('form');
     this.username = this.querySelector('#username');
-
     this.password = this.querySelector('#password');
-
-    this.button = this.querySelector('submit-btn');
+    this.button = this.querySelector('#submit');
 
     this.button.innerHTML = 'Log in';
 
-    this.button.addEventListener("click", () => {
+    this.status = this.querySelector('[data-status]');
+
+    this.form.addEventListener("submit", async (event) => {
+      event.preventDefault();
       const logIn = LogIn.getInstance();
-      logIn.submit(this.username.value, this.password.value)
-      console.log(this.username.value, this.password.value);
-    }
-    );
+      this.button.innerHTML = 'Logging in...';
+      this.status.textContent = '';
+      this.button.classList.add('opacity-70');
+      this.button.classList.add('pointer-events-none');
+
+      const result = await logIn.submit(this.username.value, this.password.value);
+      if (result.ok) {
+        this.button.innerHTML = 'Success';
+        this.status.textContent = 'Login successful';
+        this.status.classList.remove('text-red-600');
+        this.status.classList.add('text-green-700');
+        setTimeout(() => {
+          window.location.href = 'Game.html';
+        }, 600);
+      } else {
+        this.button.innerHTML = 'Log in';
+        this.status.textContent = result.error || 'Login failed';
+        this.status.classList.remove('text-green-700');
+        this.status.classList.add('text-red-600');
+        this.button.classList.remove('opacity-70');
+        this.button.classList.remove('pointer-events-none');
+      }
+    });
   }
 }
 

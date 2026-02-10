@@ -1,4 +1,3 @@
-import '../../GameComponents/ui/SubmitBtn';
 import SignUp from './logic/SignUp';
 
 class SignUpContainer extends HTMLElement {
@@ -27,9 +26,11 @@ class SignUpContainer extends HTMLElement {
       </div>
 
       <div>
-        <submit-btn class="flex w-full justify-center rounded-md bg-indigo-600 px-3 py-1.5 text-sm/6 font-semibold text-white shadow-xs hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 cursor-pointer"></submit-btn>
+        <button id="submit" type="submit" class="flex w-full justify-center rounded-md bg-indigo-600 px-3 py-1.5 text-sm/6 font-semibold text-white shadow-xs hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 cursor-pointer">Sign up</button>
       </div>
     </form>
+
+    <p data-status class="mt-4 text-center text-sm text-gray-600"></p>
 
     <p class="mt-10 text-center text-sm/6 text-gray-500">
       Already have an account?
@@ -39,15 +40,39 @@ class SignUpContainer extends HTMLElement {
 </div>
     `;
 
+    this.form = this.querySelector('form');
     this.username = this.querySelector('#username');
     this.password = this.querySelector('#password');
-    this.button = this.querySelector('submit-btn');
+    this.button = this.querySelector('#submit');
+    this.status = this.querySelector('[data-status]');
 
     this.button.innerHTML = 'Sign up';
 
-    this.button.addEventListener("click", async () => {
+    this.form.addEventListener("submit", async (event) => {
+      event.preventDefault();
       const signUp = SignUp.getInstance();
-      await signUp.submit(this.username.value, this.password.value);
+      this.button.innerHTML = 'Signing up...';
+      this.status.textContent = '';
+      this.button.classList.add('opacity-70');
+      this.button.classList.add('pointer-events-none');
+
+      const result = await signUp.submit(this.username.value, this.password.value);
+      if (result.ok) {
+        this.button.innerHTML = 'Success';
+        this.status.textContent = 'Account created';
+        this.status.classList.remove('text-red-600');
+        this.status.classList.add('text-green-700');
+        setTimeout(() => {
+          window.location.href = 'Game.html';
+        }, 600);
+      } else {
+        this.button.innerHTML = 'Sign up';
+        this.status.textContent = result.error || 'Sign up failed';
+        this.status.classList.remove('text-green-700');
+        this.status.classList.add('text-red-600');
+        this.button.classList.remove('opacity-70');
+        this.button.classList.remove('pointer-events-none');
+      }
     });
   }
 }

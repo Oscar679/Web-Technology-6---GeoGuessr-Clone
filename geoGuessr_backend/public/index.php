@@ -289,6 +289,11 @@ $app->post('/api/register', function (Request $request, Response $response) {
     /** @var UserService $userService */
     $userService = $this->get(UserService::class);
 
+    if ($userService->getUserByName($name)) {
+        $response->getBody()->write(json_encode(['error' => 'Username already taken']));
+        return $response->withStatus(409)->withHeader('Content-Type', 'application/json');
+    }
+
     try {
         $userService->addUser($name, $password);
     } catch (\Throwable $e) {

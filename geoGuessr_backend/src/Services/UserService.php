@@ -40,6 +40,14 @@ class UserService
         return null;
     }
 
+    public function getUserByName(string $name): ?array
+    {
+        $stmt = $this->pdo->prepare("SELECT * FROM users WHERE name = :name");
+        $stmt->execute(['name' => $name]);
+        $user = $stmt->fetch();
+        return $user ?: null;
+    }
+
     public function getCurrentUser(): array
     {
         return [

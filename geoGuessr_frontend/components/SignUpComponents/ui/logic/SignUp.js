@@ -20,8 +20,7 @@ class SignUp {
         const trimmedName = (name || "").trim();
         const trimmedPassword = (password || "").trim();
         if (!trimmedName || !trimmedPassword) {
-            console.error("Username and password required");
-            return;
+            return { ok: false, error: "Username and password required" };
         }
 
         const res = await this.userService.signUp(trimmedName, trimmedPassword);
@@ -29,12 +28,10 @@ class SignUp {
             const login = await this.userService.logIn(trimmedName, trimmedPassword);
             if (login.token) {
                 localStorage.setItem("token", login.token);
-                console.log("sign up successful");
-                window.location.href = "Game.html";
-                return;
+                return { ok: true };
             }
         }
-        console.error("sign up failed");
+        return { ok: false, error: res?.error || "Sign up failed" };
     }
 }
 

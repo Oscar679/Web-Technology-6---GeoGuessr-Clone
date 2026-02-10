@@ -1,12 +1,7 @@
-import GameService from "../../../api/GameService";
+import Leaderboard from "./logic/Leaderboard";
 
 class LeaderboardContainer extends HTMLElement {
     connectedCallback() {
-        this.renderSkeleton();
-        this.loadResults();
-    }
-
-    renderSkeleton() {
         this.innerHTML = `
             <div class="bg-gray-100 min-h-screen py-16">
                 <div class="mx-auto max-w-4xl px-6">
@@ -30,16 +25,17 @@ class LeaderboardContainer extends HTMLElement {
                 </div>
             </div>
         `;
+
+        this.loadResults();
     }
 
     async loadResults() {
         const status = this.querySelector("[data-status]");
         const list = this.querySelector("[data-list]");
 
-        const gameService = new GameService();
+        const leaderboard = Leaderboard.getInstance();
         try {
-            const data = await gameService.getGlobalLeaderboard();
-            const results = Array.isArray(data.results) ? data.results : [];
+            const results = await leaderboard.fetchResults();
 
             if (results.length === 0) {
                 status.textContent = "No results yet.";
