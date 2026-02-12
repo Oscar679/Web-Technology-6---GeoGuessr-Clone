@@ -83,9 +83,9 @@ class MatchHistoryContainer extends HTMLElement {
                 const timeLabel = hoursAgo >= 1 ? `${hoursAgo}h ago` : `${minutesAgo}m ago`;
                 let outcomeClass = "bg-white";
                 if (row.opponent_score !== null && row.opponent_score !== undefined) {
-                    if (row.score > row.opponent_score) {
+                    if (row.score < row.opponent_score) {
                         outcomeClass = "bg-green-50";
-                    } else if (row.score < row.opponent_score) {
+                    } else if (row.score > row.opponent_score) {
                         outcomeClass = "bg-red-50";
                     } else {
                         outcomeClass = "bg-gray-50";

@@ -32,6 +32,10 @@ class Game {
             alert(distance);
             this.updateRound();
             this.score += distance; // for now score is just the distance, but we can make it more complex later on
+            const livePointsElement = document.querySelector('live-points');
+            if (livePointsElement) {
+                livePointsElement.updatePoints(this.score); // update visible live points UI
+            }
         } else {
             console.error(`Maximum amount of rounds played: ${this.round}`);
             return;
@@ -41,13 +45,23 @@ class Game {
     updateRound() {
         this.round += 1;
         if (this.round == 5) {
-            this.gameService.saveResult(Game.instance);
+            this.completeGame();
             return;
         }
     }
 
     setGameId(gameId) {
         this.gameId = gameId;
+    }
+
+    completeGame() {
+        Promise.resolve(this.gameService.saveResult(Game.instance))
+            .then(() => {
+                window.location.href = "test.html";
+            })
+            .catch(error => {
+                console.error("Error completing game:", error);
+            });
     }
 }
 
