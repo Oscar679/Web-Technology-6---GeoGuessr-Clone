@@ -4,6 +4,7 @@
  */
 import { defineConfig } from 'vite'
 import tailwindcss from '@tailwindcss/vite'
+import { resolve } from 'path'
 
 export default defineConfig({
   server: {
@@ -14,6 +15,19 @@ export default defineConfig({
         rewrite: (path) => path.replace(/^\/backend/, ''),
       },
     }
+  },
+  build: {
+    rollupOptions: {
+      input: {
+        index: resolve(__dirname, 'index.html'),
+        game: resolve(__dirname, 'Game.html'),
+        gameComplete: resolve(__dirname, 'GameComplete.html'),
+        leaderboard: resolve(__dirname, 'Leaderboard.html'),
+        logIn: resolve(__dirname, 'logIn.html'),
+        matchHistory: resolve(__dirname, 'MatchHistory.html'),
+        signUp: resolve(__dirname, 'signUp.html'),
+      },
+    },
   },
   plugins: [tailwindcss()],
 })
