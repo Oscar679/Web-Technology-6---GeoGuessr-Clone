@@ -38,7 +38,10 @@ AppFactory::setContainer($container);
 |--------------------------------------------------------------------------
 */
 $app = AppFactory::create();
-$app->setBasePath('/oe222ia/geoguessr_backend');
+$appBasePath = isset($_ENV['APP_BASE_PATH']) ? trim((string)$_ENV['APP_BASE_PATH']) : '';
+if ($appBasePath !== '') {
+    $app->setBasePath($appBasePath);
+}
 
 /*
 |--------------------------------------------------------------------------
