@@ -23,7 +23,7 @@ class GameService extends Service {
         const token = localStorage.getItem("token");
 
         const response = await fetch(
-            "http://localhost/oe222ia/geoguessr_backend/api/startgame",
+            this.buildUrl("/api/startgame"),
             {
                 method: "PUT",
                 headers: {
@@ -50,7 +50,7 @@ class GameService extends Service {
     async getGame(gameId) {
         const token = localStorage.getItem("token");
         const response = await fetch(
-            `http://localhost/oe222ia/geoguessr_backend/api/games/${gameId}`,
+            this.buildUrl(`/api/games/${gameId}`),
             {
                 method: "GET",
                 headers: {
@@ -77,7 +77,7 @@ class GameService extends Service {
     async getResults(gameId) {
         const token = localStorage.getItem("token");
         const response = await fetch(
-            `http://localhost/oe222ia/geoguessr_backend/api/games/${gameId}/results`,
+            this.buildUrl(`/api/games/${gameId}/results`),
             {
                 method: "GET",
                 headers: {
@@ -102,7 +102,7 @@ class GameService extends Service {
      */
     async getGlobalLeaderboard() {
         const response = await fetch(
-            "http://localhost/oe222ia/geoguessr_backend/api/leaderboard",
+            this.buildUrl("/api/leaderboard"),
             {
                 method: "GET",
                 headers: {
@@ -127,7 +127,7 @@ class GameService extends Service {
     async getUserHistory() {
         const token = localStorage.getItem("token");
         const response = await fetch(
-            "http://localhost/oe222ia/geoguessr_backend/api/users/me/games",
+            this.buildUrl("/api/users/me/games"),
             {
                 method: "GET",
                 headers: {
@@ -155,7 +155,7 @@ class GameService extends Service {
         const token = localStorage.getItem("token");
 
         const response = await fetch(
-            `http://localhost/oe222ia/geoguessr_backend/api/games/${game.gameId}/result`,
+            this.buildUrl(`/api/games/${game.gameId}/result`),
             {
                 method: "POST",
                 headers: {

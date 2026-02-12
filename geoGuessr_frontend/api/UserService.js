@@ -22,7 +22,7 @@ class UserService extends Service {
      * @returns {Promise<*>}
      */
     async logIn(name, password) {
-        const url = 'http://127.0.0.1/oe222ia/geoguessr_backend/api/login';
+        const url = this.buildUrl("/api/login");
 
         try {
             const response = await fetch(url, {
@@ -43,7 +43,7 @@ class UserService extends Service {
      * @returns {Promise<*>}
      */
     async signUp(name, password) {
-        const url = 'http://127.0.0.1/oe222ia/geoguessr_backend/api/register';
+        const url = this.buildUrl("/api/register");
 
         try {
             const response = await fetch(url, {
