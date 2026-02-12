@@ -1,11 +1,25 @@
+﻿/**
+ * @file components/GameComponents/ui/LivePointsContainer.js
+ * @description LivePointsContainer module.
+ */
 import LivePoints from "../logic/LivePoints";
 
+/**
+ * Represents the LivePointsContainer module and encapsulates its behavior.
+ */
 class LivePointsContainer extends HTMLElement {
+    /**
+     * Initializes instance state and service dependencies.
+     */
     constructor() {
         super();
         this.points = 0;
     }
 
+    /**
+     * Runs when the custom element is attached to the DOM.
+     * @returns {void}
+     */
     connectedCallback() {
         this.innerHTML = `
     <section class="mx-auto mt-8 w-full max-w-7xl px-6 lg:px-8">
@@ -22,6 +36,11 @@ class LivePointsContainer extends HTMLElement {
     `;
     }
 
+    /**
+     * Updates component or game state after an interaction.
+     * @param {*} points
+     * @returns {void}
+     */
     updatePoints(points) {
         const logic = new LivePoints();
         const pointsElement = this.querySelector('#points');
@@ -33,3 +52,4 @@ class LivePointsContainer extends HTMLElement {
 }
 
 customElements.define('live-points', LivePointsContainer);
+

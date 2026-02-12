@@ -1,21 +1,33 @@
+﻿/**
+ * @file components/GameComponents/logic/Geolocation.js
+ * @description Geolocation module.
+ */
 
 class Geolocation {
+    /**
+     * Initializes instance state and service dependencies.
+     * @param {*} lat
+     * @param {*} lng
+     */
     constructor(lat, lng) {
         this.lat = lat;
         this.lng = lng;
     }
 
+    /**
+     * Executes the haversine workflow for this module.
+     * @param {*} locations
+     * @param {*} guessedCoordinates
+     * @returns {void}
+     */
     static haversine(locations, guessedCoordinates) {
         // distance between latitudes
         // and longitudes
-        console.log(guessedCoordinates);
         let lat1 = locations['lat'];
         let lon1 = locations['lng'];
 
         let lat2 = guessedCoordinates['lat'];
         let lon2 = guessedCoordinates['lng'];
-
-        console.log(lat1, lon1, lat2, lon2);
 
         let dLat = (lat2 - lat1) * Math.PI / 180.0;
         let dLon = (lon2 - lon1) * Math.PI / 180.0;

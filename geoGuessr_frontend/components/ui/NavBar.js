@@ -1,5 +1,13 @@
+﻿/**
+ * @file components/ui/NavBar.js
+ * @description NavBar module.
+ */
 
 class NavBar extends HTMLElement {
+    /**
+     * Runs when the custom element is attached to the DOM.
+     * @returns {void}
+     */
     connectedCallback() {
         this.innerHTML = `
                 <nav class="relative bg-gray-800 absolute sticky top-0">
@@ -71,3 +79,4 @@ class NavBar extends HTMLElement {
 }
 
 customElements.define('nav-bar', NavBar);
+

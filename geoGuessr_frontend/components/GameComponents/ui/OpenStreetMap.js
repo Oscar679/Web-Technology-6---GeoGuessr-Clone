@@ -1,7 +1,18 @@
+﻿/**
+ * @file components/GameComponents/ui/OpenStreetMap.js
+ * @description OpenStreetMap module.
+ */
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 
+/**
+ * Represents the OpenStreetMap module and encapsulates its behavior.
+ */
 class OpenStreetMap extends HTMLElement {
+    /**
+     * Runs when the custom element is attached to the DOM.
+     * @returns {void}
+     */
     connectedCallback() {
         this.style.display = 'block';
         this.style.height = '100%';
@@ -11,7 +22,7 @@ class OpenStreetMap extends HTMLElement {
         const map = L.map(this.querySelector('#map')).setView([51.505, -0.09], 2);
 
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            attribution: '© OpenStreetMap contributors'
+            attribution: 'Â© OpenStreetMap contributors'
         }).addTo(map);
 
         let marker = null;
@@ -29,6 +40,10 @@ class OpenStreetMap extends HTMLElement {
         });
     }
 
+    /**
+     * Returns derived or stored state from this component.
+     * @returns {*}
+     */
     getGuess() {
         return this.guessCoordinates;
     }

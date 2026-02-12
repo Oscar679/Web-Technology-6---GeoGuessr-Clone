@@ -1,7 +1,18 @@
+﻿/**
+ * @file components/LogInComponents/ui/LogInContainer.js
+ * @description LogInContainer module.
+ */
 
 import LogIn from './logic/LogIn';
 
+/**
+ * Represents the LogInContainer module and encapsulates its behavior.
+ */
 class LogInContainer extends HTMLElement {
+  /**
+   * Runs when the custom element is attached to the DOM.
+   * @returns {void}
+   */
   connectedCallback() {
     this.innerHTML = `
 <div class="flex min-h-full flex-col justify-center px-6 py-12 lg:px-8 mt-20">
@@ -82,3 +93,4 @@ class LogInContainer extends HTMLElement {
 }
 
 customElements.define('log-in', LogInContainer);
+

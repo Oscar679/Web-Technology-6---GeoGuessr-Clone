@@ -1,6 +1,17 @@
+﻿/**
+ * @file components/SignUpComponents/ui/SignUpContainer.js
+ * @description SignUpContainer module.
+ */
 import SignUp from './logic/SignUp';
 
+/**
+ * Represents the SignUpContainer module and encapsulates its behavior.
+ */
 class SignUpContainer extends HTMLElement {
+  /**
+   * Runs when the custom element is attached to the DOM.
+   * @returns {void}
+   */
   connectedCallback() {
     this.innerHTML = `
 <div class="flex min-h-full flex-col justify-center px-6 py-12 lg:px-8 mt-20">
@@ -78,3 +89,4 @@ class SignUpContainer extends HTMLElement {
 }
 
 customElements.define('sign-up', SignUpContainer);
+

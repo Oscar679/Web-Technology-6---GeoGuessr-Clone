@@ -194,13 +194,22 @@ $app->group('/api', function ($group) {
         $user = $request->getAttribute('user');
         $data = json_decode($request->getBody()->getContents(), true);
 
+        if (!is_array($data) || !isset($data['score']) || !is_numeric($data['score'])) {
+            $response->getBody()->write(json_encode(['error' => 'Invalid score payload']));
+            return $response->withStatus(400)->withHeader('Content-Type', 'application/json');
+        }
+
         /** @var GameService $gameService */
         $gameService = $this->get(GameService::class);
-        $gameService->saveResult(
-            $args['gameId'],
-            $user->user_id,
-            $data['score']
-        );
+        $status = $gameService->saveResult($args['gameId'], $user->user_id, (int)$data['score']);
+        if ($status === 'already_played') {
+            $response->getBody()->write(json_encode(['error' => 'You already played this game']));
+            return $response->withStatus(409)->withHeader('Content-Type', 'application/json');
+        }
+        if ($status === 'game_full') {
+            $response->getBody()->write(json_encode(['error' => 'This 1v1 game already has two players']));
+            return $response->withStatus(409)->withHeader('Content-Type', 'application/json');
+        }
 
         $response->getBody()->write(json_encode(['status' => 'saved']));
         return $response->withHeader('Content-Type', 'application/json');
@@ -227,7 +236,6 @@ $app->group('/api', function ($group) {
         $response->getBody()->write(json_encode(['games' => $history]));
         return $response->withHeader('Content-Type', 'application/json');
     });
-
 })->add($authMiddleware);
 
 /*

@@ -1,16 +1,29 @@
+﻿/**
+ * @file components/GameComponents/ui/StreetViewImage.js
+ * @description StreetViewImage module.
+ */
 import GameService from "../../../api/GameService";
 import Swiper from "swiper";
 import "swiper/css";
 import Game from "../logic/Game"
 
+/**
+ * Represents the StreetViewImage module and encapsulates its behavior.
+ */
 class StreetViewImage extends HTMLElement {
+  /**
+   * Initializes instance state and service dependencies.
+   */
   constructor() {
     super();
-    this.game;
     this.images;
     this.swiper;
     this._initialized = false;
   }
+  /**
+   * Runs when the custom element is attached to the DOM.
+   * @returns {Promise<*>}
+   */
   async connectedCallback() {
     if (this._initialized) {
       return;
@@ -18,7 +31,7 @@ class StreetViewImage extends HTMLElement {
     this._initialized = true;
     const token = localStorage.getItem("token");
     if (!token) {
-      window.location.href = "login.html";
+      window.location.href = "logIn.html";
       return;
     }
     const gameService = new GameService();
@@ -73,9 +86,14 @@ class StreetViewImage extends HTMLElement {
     }
   }
 
+  /**
+   * Advances to the next item in the current flow.
+   * @returns {void}
+   */
   nextImage() {
     this.swiper.slideNext();
   }
 }
 
 customElements.define("street-view-image", StreetViewImage);
+

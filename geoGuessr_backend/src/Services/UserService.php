@@ -22,11 +22,6 @@ class UserService
         ]);
     }
 
-    public function getAll(): array
-    {
-        return $this->pdo->query('SELECT * FROM users')->fetchAll();
-    }
-
     public function getUserByCredentials(string $name, string $password): ?array
     {
         $stmt = $this->pdo->prepare("SELECT * FROM users WHERE name = :name");
@@ -48,11 +43,4 @@ class UserService
         return $user ?: null;
     }
 
-    public function getCurrentUser(): array
-    {
-        return [
-            'id' => 'guest',
-            'name' => 'Guest'
-        ];
-    }
 }

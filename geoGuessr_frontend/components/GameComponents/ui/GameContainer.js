@@ -1,9 +1,20 @@
+﻿/**
+ * @file components/GameComponents/ui/GameContainer.js
+ * @description GameContainer module.
+ */
 import './StreetViewImage.js';
 import './OpenStreetMap.js';
 import './SubmitBtn.js';
 import Game from "../logic/Game.js"
 
+/**
+ * Represents the GameContainer module and encapsulates its behavior.
+ */
 class GameContainer extends HTMLElement {
+  /**
+   * Runs when the custom element is attached to the DOM.
+   * @returns {void}
+   */
   connectedCallback() {
     this.innerHTML = `
      <div class="py-24 sm:py-32 min-h-screen">
@@ -21,7 +32,7 @@ class GameContainer extends HTMLElement {
               />
               <button
                 data-copy-link
-                class="rounded-md bg-gray-900 px-3 py-2 text-sm font-medium text-white hover:bg-gray-700 transition-colors"
+                class="rounded-md bg-gray-900 px-3 py-2 text-sm font-medium text-white hover:bg-gray-700 transition-colors cursor-pointer"
                 type="button"
               >Copy</button>
             </div>
@@ -47,6 +58,7 @@ class GameContainer extends HTMLElement {
             <submit-btn class="rounded-md bg-green-700 px-16 py-3 text-sm font-medium text-gray-100
                hover:bg-green-500 hover:text-white transition-colors cursor-pointer"></submit-btn>
           </div>
+          <div data-game-status class="mt-4 text-center text-sm text-red-600"></div>
 
         </div>
       </div>
@@ -57,8 +69,20 @@ class GameContainer extends HTMLElement {
     this.button = this.querySelector('submit-btn');
     this.shareInput = this.querySelector('[data-share-link]');
     this.copyButton = this.querySelector('[data-copy-link]');
+    this.status = this.querySelector('[data-game-status]');
 
     this.button.innerHTML = 'Guess';
+    this.setStatus = (message = '') => {
+      if (this.status) {
+        this.status.textContent = message;
+      }
+    };
+
+    this.onGameError = (event) => {
+      const message = event?.detail?.message || 'Could not save your result.';
+      this.setStatus(message);
+    };
+    document.addEventListener("game-error", this.onGameError);
 
     this.copyButton.addEventListener("click", async () => {
       if (!this.shareInput.value || this.shareInput.value === "Generating...") {
@@ -86,9 +110,10 @@ class GameContainer extends HTMLElement {
     });
 
     this.button.addEventListener("click", () => {
+      this.setStatus('');
       const guess = this.map.getGuess();
       if (!guess) {
-        alert('You must make a guess.');
+        this.setStatus('You must make a guess.');
         return;
       }
       let game;
@@ -102,6 +127,17 @@ class GameContainer extends HTMLElement {
       this.streetView.nextImage();
     });
   }
+
+  /**
+   * Runs when the custom element is detached from the DOM.
+   * @returns {void}
+   */
+  disconnectedCallback() {
+    if (this.onGameError) {
+      document.removeEventListener("game-error", this.onGameError);
+    }
+  }
 }
 
 customElements.define("game-container", GameContainer);
+

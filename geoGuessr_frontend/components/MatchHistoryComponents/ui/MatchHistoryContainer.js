@@ -1,6 +1,17 @@
+﻿/**
+ * @file components/MatchHistoryComponents/ui/MatchHistoryContainer.js
+ * @description MatchHistoryContainer module.
+ */
 import MatchHistory from "./logic/MatchHistory";
 
+/**
+ * Represents the MatchHistoryContainer module and encapsulates its behavior.
+ */
 class MatchHistoryContainer extends HTMLElement {
+    /**
+     * Runs when the custom element is attached to the DOM.
+     * @returns {void}
+     */
     connectedCallback() {
         this.innerHTML = `
             <div class="bg-gray-100 min-h-screen py-16">
@@ -30,6 +41,10 @@ class MatchHistoryContainer extends HTMLElement {
         this.loadHistory();
     }
 
+    /**
+     * Loads data required for the current view or component state.
+     * @returns {Promise<*>}
+     */
     async loadHistory() {
         const token = localStorage.getItem("token");
         if (!token) {
@@ -112,3 +127,4 @@ class MatchHistoryContainer extends HTMLElement {
 }
 
 customElements.define("match-history", MatchHistoryContainer);
+

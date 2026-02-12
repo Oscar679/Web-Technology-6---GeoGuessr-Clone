@@ -156,8 +156,35 @@ class GameService
         return $stmt->fetchAll();
     }
 
-    public function saveResult(string $gameId, int $userId, int $score): void
+    public function saveResult(string $gameId, int $userId, int $score): string
     {
+        $checkStmt = $this->pdo->prepare(
+            "SELECT COUNT(*)
+             FROM game_results
+             WHERE game_id = :game_id
+               AND user_id = :user_id"
+        );
+        $checkStmt->execute([
+            "game_id" => $gameId,
+            "user_id" => $userId
+        ]);
+        if ($checkStmt->fetchColumn() > 0) {
+            return "already_played";
+        }
+
+        // Enforce 1v1: only two unique users can submit to the same game.
+        $countPlayersStmt = $this->pdo->prepare(
+            "SELECT COUNT(DISTINCT user_id)
+             FROM game_results
+             WHERE game_id = :game_id"
+        );
+        $countPlayersStmt->execute([
+            "game_id" => $gameId
+        ]);
+        if ((int)$countPlayersStmt->fetchColumn() >= 2) {
+            return "game_full";
+        }
+
         $stmt = $this->pdo->prepare(
             "INSERT INTO game_results (game_id, user_id, score)
              VALUES (:game_id, :user_id, :score)"
@@ -171,6 +198,7 @@ class GameService
 
         $this->updateStatsForGame($gameId);
         $this->updateRatings();
+        return "saved";
     }
 
     private function updateStatsForGame(string $gameId): void
@@ -288,5 +316,4 @@ class GameService
             ]);
         }
     }
-
 }

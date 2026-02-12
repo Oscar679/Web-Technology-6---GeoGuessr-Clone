@@ -1,5 +1,13 @@
+﻿/**
+ * @file components/ui/Index.js
+ * @description Index module.
+ */
 
 class Index extends HTMLElement {
+  /**
+   * Runs when the custom element is attached to the DOM.
+   * @returns {void}
+   */
   connectedCallback() {
     this.innerHTML = `
     <div class="bg-gray-100 py-24 sm:py-32 min-h-screen">
@@ -12,7 +20,7 @@ class Index extends HTMLElement {
             Explore real street-level images from around the world and challenge your friends to see who has the sharpest sense of place.</p>
 
           <p class="mt-6 text-lg text-gray-700">
-            <a class="underline font-medium" href="signUp.html">Sign Up</a> to start playing - or <a class="underline font-medium" href="login.html">Log In</a> to continue.</p>
+            <a class="underline font-medium" href="signUp.html">Sign Up</a> to start playing - or <a class="underline font-medium" href="logIn.html">Log In</a> to continue.</p>
         </div>
       </div>
     </div>
@@ -21,3 +29,4 @@ class Index extends HTMLElement {
 }
 
 customElements.define('index-body', Index);
+

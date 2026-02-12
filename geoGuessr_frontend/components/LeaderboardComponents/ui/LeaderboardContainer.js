@@ -1,6 +1,17 @@
+﻿/**
+ * @file components/LeaderboardComponents/ui/LeaderboardContainer.js
+ * @description LeaderboardContainer module.
+ */
 import Leaderboard from "./logic/Leaderboard";
 
+/**
+ * Represents the LeaderboardContainer module and encapsulates its behavior.
+ */
 class LeaderboardContainer extends HTMLElement {
+    /**
+     * Runs when the custom element is attached to the DOM.
+     * @returns {void}
+     */
     connectedCallback() {
         this.innerHTML = `
             <div class="bg-gray-100 min-h-screen py-16">
@@ -29,6 +40,10 @@ class LeaderboardContainer extends HTMLElement {
         this.loadResults();
     }
 
+    /**
+     * Loads data required for the current view or component state.
+     * @returns {Promise<*>}
+     */
     async loadResults() {
         const status = this.querySelector("[data-status]");
         const list = this.querySelector("[data-list]");
@@ -80,3 +95,4 @@ class LeaderboardContainer extends HTMLElement {
 }
 
 customElements.define("leader-board", LeaderboardContainer);
+

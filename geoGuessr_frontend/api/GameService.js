@@ -1,10 +1,24 @@
+﻿/**
+ * @file api/GameService.js
+ * @description GameService module.
+ */
 import Service from "./AbstractService";
 
+/**
+ * Represents the GameService module and encapsulates its behavior.
+ */
 class GameService extends Service {
+    /**
+     * Initializes instance state and service dependencies.
+     */
     constructor() {
         super();
     }
 
+    /**
+     * Executes the startGame workflow for this module.
+     * @returns {Promise<*>}
+     */
     async startGame() {
         const token = localStorage.getItem("token");
 
@@ -28,6 +42,11 @@ class GameService extends Service {
         return data;
     }
 
+    /**
+     * Returns derived or stored state from this component.
+     * @param {*} gameId
+     * @returns {Promise<*>}
+     */
     async getGame(gameId) {
         const token = localStorage.getItem("token");
         const response = await fetch(
@@ -50,6 +69,11 @@ class GameService extends Service {
         return data;
     }
 
+    /**
+     * Returns derived or stored state from this component.
+     * @param {*} gameId
+     * @returns {Promise<*>}
+     */
     async getResults(gameId) {
         const token = localStorage.getItem("token");
         const response = await fetch(
@@ -72,6 +96,10 @@ class GameService extends Service {
         return data;
     }
 
+    /**
+     * Returns derived or stored state from this component.
+     * @returns {Promise<*>}
+     */
     async getGlobalLeaderboard() {
         const response = await fetch(
             "http://localhost/oe222ia/geoguessr_backend/api/leaderboard",
@@ -92,6 +120,10 @@ class GameService extends Service {
         return data;
     }
 
+    /**
+     * Returns derived or stored state from this component.
+     * @returns {Promise<*>}
+     */
     async getUserHistory() {
         const token = localStorage.getItem("token");
         const response = await fetch(
@@ -114,10 +146,15 @@ class GameService extends Service {
         return data;
     }
 
+    /**
+     * Executes the saveResult workflow for this module.
+     * @param {*} game
+     * @returns {Promise<*>}
+     */
     async saveResult(game) {
         const token = localStorage.getItem("token");
 
-        await fetch(
+        const response = await fetch(
             `http://localhost/oe222ia/geoguessr_backend/api/games/${game.gameId}/result`,
             {
                 method: "POST",
@@ -130,7 +167,25 @@ class GameService extends Service {
                 })
             }
         );
+
+        if (response.status === 409) {
+            let message = "You have already played this game.";
+            try {
+                const data = await response.json();
+                if (data?.error) {
+                    message = data.error;
+                }
+            } catch {
+                // Keep default message when response is not JSON.
+            }
+            throw new Error(message);
+        }
+
+        if (!response.ok) {
+            throw new Error(`HTTP ${response.status}`);
+        }
     }
 }
 
 export default GameService;
+

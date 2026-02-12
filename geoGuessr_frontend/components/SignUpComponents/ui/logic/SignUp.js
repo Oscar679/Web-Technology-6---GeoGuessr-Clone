@@ -1,13 +1,27 @@
+﻿/**
+ * @file components/SignUpComponents/ui/logic/SignUp.js
+ * @description SignUp module.
+ */
 import UserService from "../../../../api/UserService";
 
+/**
+ * Represents the SignUp module and encapsulates its behavior.
+ */
 class SignUp {
     static instance;
 
+    /**
+     * Initializes instance state and service dependencies.
+     */
     constructor() {
         SignUp.instance = this;
         this.userService = new UserService();
     }
 
+    /**
+     * Returns the singleton instance for this class.
+     * @returns {*}
+     */
     static getInstance() {
         if (!SignUp.instance) {
             SignUp.instance = new SignUp();
@@ -16,6 +30,12 @@ class SignUp {
         return SignUp.instance;
     }
 
+    /**
+     * Submits user input or game data to the backend.
+     * @param {*} name
+     * @param {*} password
+     * @returns {Promise<*>}
+     */
     async submit(name, password) {
         const trimmedName = (name || "").trim();
         const trimmedPassword = (password || "").trim();
@@ -36,3 +56,4 @@ class SignUp {
 }
 
 export default SignUp;
+
