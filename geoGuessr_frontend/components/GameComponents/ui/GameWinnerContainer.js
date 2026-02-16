@@ -1,25 +1,17 @@
-﻿/**
- * @file components/GameComponents/ui/GameWinnerContainer.js
- * @description GameWinnerContainer module.
- */
 import GameService from "../../../api/GameService";
 
 /**
- * Represents the GameWinnerContainer module and encapsulates its behavior.
+ * Game completion view for 1v1 outcome + sharing controls.
+ * Shows waiting state for opponent and hides share section after both have played.
  */
 class GameWinnerContainer extends HTMLElement {
-    /**
-     * Initializes instance state and service dependencies.
-     */
+    /** Initializes API dependency for result loading. */
     constructor() {
         super();
         this.gameService = new GameService();
     }
 
-    /**
-     * Runs when the custom element is attached to the DOM.
-     * @returns {void}
-     */
+    /** Renders static markup and starts loading using gameId from URL. */
     connectedCallback() {
         this.innerHTML = `
         <section class="mx-auto mt-6 w-full max-w-3xl px-6 lg:px-8" data-winner-root>
@@ -65,10 +57,7 @@ class GameWinnerContainer extends HTMLElement {
         this.loadWinnerFromUrl();
     }
 
-    /**
-     * Loads data required for the current view or component state.
-     * @returns {Promise<*>}
-     */
+    /** Reads `gameId` from query string and routes to the result-loading flow. */
     async loadWinnerFromUrl() {
         const params = new URLSearchParams(window.location.search);
         const gameId = params.get("gameId");
@@ -94,11 +83,7 @@ class GameWinnerContainer extends HTMLElement {
         await this.loadWinner(gameId);
     }
 
-    /**
-     * Loads data required for the current view or component state.
-     * @param {*} gameId
-     * @returns {Promise<*>}
-     */
+    /** Fetches results and derives winner/tie/waiting presentation state. */
     async loadWinner(gameId) {
         const title = this.querySelector("[data-title]");
         const subtitle = this.querySelector("[data-subtitle]");
@@ -147,7 +132,7 @@ class GameWinnerContainer extends HTMLElement {
                 player2ScoreElement.textContent = `${second.player_name}: ${Math.round(secondScore)} km`;
             }
 
-            // Lower score is better in this game.
+            // Lower score wins in this game mode.
             let winner = null;
             if (firstScore < secondScore) {
                 winner = first;
@@ -155,7 +140,7 @@ class GameWinnerContainer extends HTMLElement {
                 winner = second;
             }
 
-            // if its a tie.
+            // Equal scores are treated as a tie.
             if (!winner) {
                 title.textContent = "It's a tie";
                 subtitle.textContent = `Both players finished with ${Math.round(firstScore)} km.`;
@@ -171,11 +156,7 @@ class GameWinnerContainer extends HTMLElement {
         }
     }
 
-    /**
-     * Sets internal state used by this component.
-     * @param {*} gameId
-     * @returns {void}
-     */
+    /** Builds and wires the share link copy action for this game. */
     setShareLink(gameId) {
         const shareInput = this.querySelector("[data-share-link]");
         const copyButton = this.querySelector("[data-copy-link]");
@@ -203,4 +184,3 @@ class GameWinnerContainer extends HTMLElement {
 }
 
 customElements.define("game-winner", GameWinnerContainer);
-

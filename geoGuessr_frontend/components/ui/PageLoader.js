@@ -1,6 +1,6 @@
 /**
- * @file components/ui/PageLoader.js
- * @description Full-page loader overlay.
+ * Global loading overlay controller.
+ * Listens to custom events to support route load + async game asset load.
  */
 class PageLoader extends HTMLElement {
     connectedCallback() {
@@ -16,6 +16,7 @@ class PageLoader extends HTMLElement {
         this.overlay = this.querySelector(".page-loader");
         this.label = this.querySelector("[data-loader-label]");
         this.hideTimer = null;
+        // Reference counter prevents flicker when multiple async tasks overlap.
         this.pendingLoads = 0;
         this.pageLoaded = false;
         this.defaultLabel = "Loading...";
@@ -43,6 +44,7 @@ class PageLoader extends HTMLElement {
             this.updateVisibility();
         };
 
+        // Allows updating text without changing visibility/counter.
         this.setMessage = (event) => {
             const message = event?.detail?.message;
             if (message && this.label) {
@@ -51,6 +53,7 @@ class PageLoader extends HTMLElement {
         };
 
         this.hideOverlay = () => {
+            // Never allow negative counter values.
             this.pendingLoads = Math.max(0, this.pendingLoads - 1);
             if (this.pendingLoads === 0 && this.label) {
                 this.label.textContent = this.defaultLabel;
@@ -60,6 +63,7 @@ class PageLoader extends HTMLElement {
 
         this.handleWindowLoad = () => {
             this.pageLoaded = true;
+            // Small delay avoids flash on very fast page loads.
             this.hideTimer = setTimeout(() => {
                 this.updateVisibility();
             }, 1100);

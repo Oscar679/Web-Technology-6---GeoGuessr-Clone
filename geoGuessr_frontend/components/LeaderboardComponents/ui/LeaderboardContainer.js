@@ -1,17 +1,11 @@
-﻿/**
- * @file components/LeaderboardComponents/ui/LeaderboardContainer.js
- * @description LeaderboardContainer module.
- */
 import Leaderboard from "./logic/Leaderboard";
 
 /**
- * Represents the LeaderboardContainer module and encapsulates its behavior.
+ * Leaderboard page component.
+ * Shows top-three spotlight cards and full ranking table from API data.
  */
 class LeaderboardContainer extends HTMLElement {
-    /**
-     * Runs when the custom element is attached to the DOM.
-     * @returns {void}
-     */
+    /** Renders page shell and triggers initial leaderboard load. */
     connectedCallback() {
         this.innerHTML = `
             <div class="min-h-screen py-16">
@@ -42,10 +36,7 @@ class LeaderboardContainer extends HTMLElement {
         this.loadResults();
     }
 
-    /**
-     * Loads data required for the current view or component state.
-     * @returns {Promise<*>}
-     */
+    /** Fetches leaderboard rows and maps rank-based visual styles. */
     async loadResults() {
         const status = this.querySelector("[data-status]");
         const list = this.querySelector("[data-list]");
@@ -61,6 +52,8 @@ class LeaderboardContainer extends HTMLElement {
 
             status.classList.add("hidden");
             list.classList.remove("hidden");
+
+            // Spotlight panel for the podium while still keeping full table below.
             const topThree = results.slice(0, 3);
             list.innerHTML = `
                 <div class="mb-5 grid gap-3 sm:grid-cols-3">
@@ -87,6 +80,8 @@ class LeaderboardContainer extends HTMLElement {
                         <tbody class="text-slate-800">
                             ${results.map((row, index) => {
                 const rank = index + 1;
+
+                // Color coding reinforces podium positions in rank badges.
                 const rankTone = rank === 1
                     ? "bg-amber-100 text-amber-800"
                     : rank === 2
@@ -94,6 +89,7 @@ class LeaderboardContainer extends HTMLElement {
                         : rank === 3
                             ? "bg-orange-100 text-orange-800"
                             : "bg-slate-100 text-slate-700";
+
                 const rowTone = rank <= 3 ? "bg-teal-50/40" : "";
                 return `
                                 <tr class="border-t border-slate-100 ${rowTone}">
@@ -120,4 +116,3 @@ class LeaderboardContainer extends HTMLElement {
 }
 
 customElements.define("leader-board", LeaderboardContainer);
-

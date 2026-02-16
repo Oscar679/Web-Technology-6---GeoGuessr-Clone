@@ -4,6 +4,9 @@ namespace App\Services;
 
 use GuzzleHttp\Client;
 
+/**
+ * Fetches random Mapillary street-view images and coordinates for a game round set.
+ */
 class MapillaryService
 {
     private string $token;
@@ -16,7 +19,7 @@ class MapillaryService
         $this->token = $token;
         $this->http = new Client();
 
-        // Major European cities with excellent Mapillary coverage
+        // Seed cities chosen for dense Mapillary coverage to reduce empty results.
         $this->locations = [
             ['lat' => 52.5200, 'lng' => 13.4050], // Berlin
             ['lat' => 48.8566, 'lng' => 2.3522],  // Paris
@@ -24,7 +27,7 @@ class MapillaryService
             ['lat' => 50.8503, 'lng' => 4.3517],  // Brussels
             ['lat' => 48.2082, 'lng' => 16.3738], // Vienna
             ['lat' => 50.1109, 'lng' => 8.6821],  // Frankfurt
-            ['lat' => 51.2277, 'lng' => 6.7735],  // Düsseldorf
+            ['lat' => 51.2277, 'lng' => 6.7735],  // Dusseldorf
             ['lat' => 53.5511, 'lng' => 9.9937],  // Hamburg
             ['lat' => 48.1351, 'lng' => 11.5820], // Munich
             ['lat' => 45.4642, 'lng' => 9.1900],  // Milan
@@ -41,12 +44,16 @@ class MapillaryService
         ];
     }
 
+    /**
+     * Builds a round set by selecting random images near random seed cities.
+     */
     public function getRandomImage(int $count = 5): array
     {
         $results = [];
         for ($i = 0; $i < $count; $i++) {
             $location = $this->locations[array_rand($this->locations)];
-            $delta = 0.005; // Smaller delta in order to avoid 'image not found exception'
+            // Small bbox increases chance that returned images are geographically coherent.
+            $delta = 0.005;
 
             $bbox = implode(',', [
                 $location['lng'] - $delta,
@@ -55,7 +62,7 @@ class MapillaryService
                 $location['lat'] + $delta,
             ]);
 
-            // Fetch image IDs in bounding box
+            // Step 1: fetch candidate image IDs in the current bounding box.
             $response = $this->http->get("{$this->baseUrl}/images", [
                 'query' => [
                     'access_token' => $this->token,
@@ -68,6 +75,7 @@ class MapillaryService
             $data = json_decode($response->getBody(), true);
 
             if (empty($data['data'])) {
+                // Retry this slot if no images are available in this area.
                 $i--;
                 continue;
             }
@@ -75,7 +83,7 @@ class MapillaryService
             $ids = array_column($data['data'], 'id');
             $randomId = $ids[array_rand($ids)];
 
-            // Fetch image details
+            // Step 2: fetch image URL + geometry for one random candidate.
             $response = $this->http->get("{$this->baseUrl}/{$randomId}", [
                 'query' => [
                     'access_token' => $this->token,
@@ -86,6 +94,7 @@ class MapillaryService
             $image = json_decode($response->getBody(), true);
 
             if ($this->isDuplicate($results, $image['geometry']['coordinates'][1], $image['geometry']['coordinates'][0])) {
+                // Avoid nearly identical rounds in the same game.
                 $i--;
                 continue;
             }
@@ -99,6 +108,9 @@ class MapillaryService
         return $results;
     }
 
+    /**
+     * Prevents near-identical coordinates from appearing more than once in a game.
+     */
     private function isDuplicate($results, $imageLat, $imageLng): bool
     {
         for ($i = 0; $i < count($results); $i++) {
@@ -112,3 +124,4 @@ class MapillaryService
         return false;
     }
 }
+

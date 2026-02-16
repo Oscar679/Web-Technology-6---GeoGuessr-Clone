@@ -1,20 +1,14 @@
-﻿/**
- * @file components/GameComponents/ui/GameContainer.js
- * @description GameContainer module.
- */
-import './StreetViewImage.js';
-import './OpenStreetMap.js';
-import './SubmitBtn.js';
-import Game from "../logic/Game.js"
+import "./StreetViewImage.js";
+import "./OpenStreetMap.js";
+import "./LivePointsContainer.js";
+import Game from "../logic/Game.js";
 
 /**
- * Represents the GameContainer module and encapsulates its behavior.
+ * Primary game page layout and orchestration component.
+ * Connects street-view, map input, round progress, and share-link UI.
  */
 class GameContainer extends HTMLElement {
-  /**
-   * Runs when the custom element is attached to the DOM.
-   * @returns {void}
-   */
+  /** Renders the game shell and binds interaction handlers. */
   connectedCallback() {
     this.innerHTML = `
      <div class="min-h-full py-3 lg:h-full lg:min-h-0 lg:overflow-hidden">
@@ -40,26 +34,25 @@ class GameContainer extends HTMLElement {
               <p class="text-sm text-slate-700">Share this exact game with a friend</p>
             </div>
             <div class="flex flex-col gap-3 p-4 sm:flex-row sm:items-center sm:px-5 sm:py-4">
-            <div class="text-sm font-medium text-slate-700">Shareable link</div>
-            <div class="flex w-full sm:max-w-xl gap-2">
-              <input
-                data-share-link
-                type="text"
-                readonly
-                class="w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm text-slate-800"
-                value="Generating..."
-              />
-              <button
-                data-copy-link
-                class="rounded-md bg-teal-700 px-3 py-2 text-sm font-medium text-white hover:bg-teal-600 transition-colors cursor-pointer"
-                type="button"
-              >Copy</button>
+              <div class="text-sm font-medium text-slate-700">Shareable link</div>
+              <div class="flex w-full sm:max-w-xl gap-2">
+                <input
+                  data-share-link
+                  type="text"
+                  readonly
+                  class="w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm text-slate-800"
+                  value="Generating..."
+                />
+                <button
+                  data-copy-link
+                  class="rounded-md bg-teal-700 px-3 py-2 text-sm font-medium text-white hover:bg-teal-600 transition-colors cursor-pointer"
+                  type="button"
+                >Copy</button>
+              </div>
             </div>
-          </div>
           </div>
 
           <div class="flex flex-col gap-3 lg:min-h-0 lg:flex-1 lg:flex-row">
-
             <div class="play-card fade-in-up fade-in-delay-1 flex h-[22rem] w-full flex-col overflow-hidden rounded-3xl sm:h-[26rem] lg:h-auto lg:min-h-0 lg:w-1/2">
               <div class="shrink-0 px-4 pb-3 pt-4">
                 <p class="text-[11px] font-semibold uppercase tracking-[0.16em] text-teal-700">Clue</p>
@@ -67,7 +60,7 @@ class GameContainer extends HTMLElement {
               </div>
               <div class="min-h-0 flex-1 overflow-hidden px-3 pb-3">
                 <div class="h-full rounded-2xl overflow-hidden border border-slate-200/70 bg-white">
-                <street-view-image></street-view-image>
+                  <street-view-image></street-view-image>
                 </div>
               </div>
             </div>
@@ -84,42 +77,42 @@ class GameContainer extends HTMLElement {
               </div>
               <div class="min-h-0 flex-1 overflow-hidden px-3 pb-3">
                 <div class="h-full rounded-2xl overflow-hidden border border-slate-200/70 bg-white">
-                <open-street-map></open-street-map>
+                  <open-street-map></open-street-map>
                 </div>
               </div>
             </div>
-
           </div>
 
           <div class="mt-3 flex justify-center fade-in-up fade-in-delay-2">
-            <submit-btn class="rounded-md bg-teal-700 px-12 py-2 text-sm font-medium text-white shadow-sm hover:bg-teal-600 transition-colors cursor-pointer"></submit-btn>
+            <button data-submit type="button" class="rounded-md bg-teal-700 px-12 py-2 text-sm font-medium text-white shadow-sm hover:bg-teal-600 transition-colors cursor-pointer">Guess</button>
           </div>
           <div data-game-status class="mt-2 text-center text-sm text-red-600"></div>
-
         </div>
       </div>
     `;
 
-    this.streetView = this.querySelector('street-view-image');
-    this.map = this.querySelector('open-street-map');
-    this.button = this.querySelector('submit-btn');
-    this.shareInput = this.querySelector('[data-share-link]');
-    this.copyButton = this.querySelector('[data-copy-link]');
-    this.status = this.querySelector('[data-game-status]');
-    this.roundLabel = this.querySelector('[data-round-label]');
-    this.roundBar = this.querySelector('[data-round-bar]');
+    this.streetView = this.querySelector("street-view-image");
+    this.map = this.querySelector("open-street-map");
+    this.button = this.querySelector("[data-submit]");
+    this.shareInput = this.querySelector("[data-share-link]");
+    this.copyButton = this.querySelector("[data-copy-link]");
+    this.status = this.querySelector("[data-game-status]");
+    this.roundLabel = this.querySelector("[data-round-label]");
+    this.roundBar = this.querySelector("[data-round-bar]");
 
-    this.button.innerHTML = 'Guess';
-    this.setStatus = (message = '') => {
+    // Centralized helper for inline error/status text.
+    this.setStatus = (message = "") => {
       if (this.status) {
         this.status.textContent = message;
       }
     };
 
     this.onGameError = (event) => {
-      const message = event?.detail?.message || 'Could not save your result.';
+      const message = event?.detail?.message || "Could not save your result.";
       this.setStatus(message);
     };
+
+    // Keeps header progress bar synchronized with game-round events.
     this.onRoundChanged = (event) => {
       const currentRound = Number(event?.detail?.currentRound || 1);
       const totalRounds = Number(event?.detail?.totalRounds || 5);
@@ -131,18 +124,20 @@ class GameContainer extends HTMLElement {
         this.roundBar.style.width = `${pct}%`;
       }
     };
+
     document.addEventListener("game-error", this.onGameError);
     document.addEventListener("game-round-changed", this.onRoundChanged);
 
+    // Copies generated share URL for inviting a second player.
     this.copyButton.addEventListener("click", async () => {
       if (!this.shareInput.value || this.shareInput.value === "Generating...") {
         return;
       }
       try {
         await navigator.clipboard.writeText(this.shareInput.value);
-        this.copyButton.innerHTML = 'Copied';
+        this.copyButton.textContent = "Copied";
         setTimeout(() => {
-          this.copyButton.innerHTML = 'Copy';
+          this.copyButton.textContent = "Copy";
         }, 1200);
       } catch (e) {
         console.error("Clipboard failed:", e);
@@ -159,13 +154,15 @@ class GameContainer extends HTMLElement {
       this.shareInput.value = url.toString();
     });
 
+    // Validates guess, submits round, and advances to next image.
     this.button.addEventListener("click", () => {
-      this.setStatus('');
+      this.setStatus("");
       const guess = this.map.getGuess();
       if (!guess) {
-        this.setStatus('You must make a guess.');
+        this.setStatus("You must make a guess.");
         return;
       }
+
       let game;
       try {
         game = Game.getInstance();
@@ -173,15 +170,13 @@ class GameContainer extends HTMLElement {
         console.error(`Game not ready yet: ${e}`);
         return;
       }
+
       game.submitGuess(guess);
       this.streetView.nextImage();
     });
   }
 
-  /**
-   * Runs when the custom element is detached from the DOM.
-   * @returns {void}
-   */
+  /** Cleans up global listeners to avoid duplicate handlers on remount. */
   disconnectedCallback() {
     if (this.onGameError) {
       document.removeEventListener("game-error", this.onGameError);
@@ -193,4 +188,3 @@ class GameContainer extends HTMLElement {
 }
 
 customElements.define("game-container", GameContainer);
-

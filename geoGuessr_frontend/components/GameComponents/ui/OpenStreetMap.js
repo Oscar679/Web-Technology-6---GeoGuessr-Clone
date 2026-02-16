@@ -1,36 +1,31 @@
-﻿/**
- * @file components/GameComponents/ui/OpenStreetMap.js
- * @description OpenStreetMap module.
- */
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 
 /**
- * Represents the OpenStreetMap module and encapsulates its behavior.
+ * Leaflet wrapper component used for placing a single guess marker.
  */
 class OpenStreetMap extends HTMLElement {
-    /**
-     * Runs when the custom element is attached to the DOM.
-     * @returns {void}
-     */
     connectedCallback() {
-        this.style.display = 'block';
-        this.style.height = '100%';
+        this.style.display = "block";
+        this.style.height = "100%";
         this.innerHTML = '<div id="map" style="height: 100%; width: 100%;"></div>';
-        this.guessCoordinates == null;
 
-        const map = L.map(this.querySelector('#map')).setView([51.505, -0.09], 2);
+        // Holds latest clicked coordinates for current round.
+        this.guessCoordinates = null;
 
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            attribution: 'Â© OpenStreetMap contributors'
+        const map = L.map(this.querySelector("#map")).setView([51.505, -0.09], 2);
+
+        L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+            attribution: "� OpenStreetMap contributors"
         }).addTo(map);
 
         let marker = null;
 
-        map.on('click', (e) => {
+        map.on("click", (e) => {
             const { lat, lng } = e.latlng;
 
             if (marker) {
+                // Reposition existing marker instead of adding more markers.
                 marker.setLatLng([lat, lng]);
             } else {
                 marker = L.marker([lat, lng]).addTo(map);
@@ -40,13 +35,10 @@ class OpenStreetMap extends HTMLElement {
         });
     }
 
-    /**
-     * Returns derived or stored state from this component.
-     * @returns {*}
-     */
+    /** Returns current guess coordinates or null if nothing is selected yet. */
     getGuess() {
         return this.guessCoordinates;
     }
 }
 
-customElements.define('open-street-map', OpenStreetMap);
+customElements.define("open-street-map", OpenStreetMap);

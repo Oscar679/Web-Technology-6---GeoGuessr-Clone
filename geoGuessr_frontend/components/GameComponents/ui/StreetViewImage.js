@@ -1,49 +1,32 @@
-﻿/**
- * @file components/GameComponents/ui/StreetViewImage.js
- * @description StreetViewImage module.
- */
 import GameService from "../../../api/GameService";
 import Swiper from "swiper";
 import "swiper/css";
-import Game from "../logic/Game"
+import Game from "../logic/Game";
 
 /**
- * Represents the StreetViewImage module and encapsulates its behavior.
+ * Loads game images and drives the street-view carousel.
  */
 class StreetViewImage extends HTMLElement {
-  /**
-   * Initializes instance state and service dependencies.
-   */
   constructor() {
     super();
-    this.images;
-    this.swiper;
+    this.images = undefined;
+    this.swiper = undefined;
     this._initialized = false;
   }
 
-  /**
-   * Emits event to show global page loader.
-   * @returns {void}
-   */
+  /** Emits global event to show full-page loader. */
   showLoader(message = "Loading...") {
     document.dispatchEvent(new CustomEvent("app-loader:show", {
       detail: { message }
     }));
   }
 
-  /**
-   * Emits event to hide global page loader.
-   * @returns {void}
-   */
+  /** Emits global event to hide full-page loader. */
   hideLoader() {
     document.dispatchEvent(new CustomEvent("app-loader:hide"));
   }
 
-  /**
-   * Waits until an image element is loaded (or errored).
-   * @param {HTMLImageElement | null} imageElement
-   * @returns {Promise<void>}
-   */
+  /** Waits until a specific image resolves with either load or error. */
   waitForImage(imageElement) {
     return new Promise((resolve) => {
       if (!imageElement || imageElement.complete) {
@@ -56,22 +39,23 @@ class StreetViewImage extends HTMLElement {
       imageElement.addEventListener("error", done, { once: true });
     });
   }
-  /**
-   * Runs when the custom element is attached to the DOM.
-   * @returns {Promise<*>}
-   */
+
+  /** Loads game payload, initializes swiper, and bootstraps Game singleton. */
   async connectedCallback() {
     if (this._initialized) {
       return;
     }
+
     this._initialized = true;
     const token = localStorage.getItem("token");
     if (!token) {
       window.location.href = "logIn.html";
       return;
     }
+
     const gameService = new GameService();
     this.showLoader("Preparing challenge...");
+
     try {
       const params = new URLSearchParams(window.location.search);
       const existingGameId = params.get("gameId");
@@ -80,6 +64,7 @@ class StreetViewImage extends HTMLElement {
         : await gameService.startGame();
 
       if (!existingGameId) {
+        // Persist generated gameId in URL so it can be shared immediately.
         const url = new URL(window.location.href);
         url.searchParams.set("gameId", data.gameId);
         window.history.replaceState({}, "", url.toString());
@@ -89,10 +74,11 @@ class StreetViewImage extends HTMLElement {
       document.dispatchEvent(new CustomEvent("app-loader:message", {
         detail: { message: "Loading first street-view image..." }
       }));
+
       this.innerHTML = `
               <div class="swiper w-full h-full rounded-xl">
                 <div class="swiper-wrapper">
-                 ${this.images.map(img => `
+                 ${this.images.map((img) => `
                   <div class="swiper-slide">
                     <div class="overflow-hidden rounded-xl shadow-md h-full">
                       <img 
@@ -102,30 +88,31 @@ class StreetViewImage extends HTMLElement {
                       >
                     </div>
                   </div>
-                `).join('')}
+                `).join("")}
                 </div>
               </div>
             `;
 
-      this.swiper = new Swiper(this.querySelector('.swiper'), {
+      this.swiper = new Swiper(this.querySelector(".swiper"), {
+        // Manual swipe is disabled to enforce one-guess-per-round flow.
         allowTouchMove: false
       });
 
       const firstImage = this.querySelector(".swiper-slide:first-child img");
       await this.waitForImage(firstImage);
 
-      const coordinates = this.images.map(img => ({
+      const coordinates = this.images.map((img) => ({
         lat: img.lat,
         lng: img.lng
       }));
 
       const game = Game.getInstance(coordinates);
-      game.setGameId(data.gameId); // backend sets gameId
+      game.setGameId(data.gameId);
+
       this.dispatchEvent(new CustomEvent("game-ready", {
         detail: { gameId: data.gameId },
         bubbles: true
       }));
-
     } catch (err) {
       console.error("Error:", err);
     } finally {
@@ -133,10 +120,7 @@ class StreetViewImage extends HTMLElement {
     }
   }
 
-  /**
-   * Advances to the next item in the current flow.
-   * @returns {void}
-   */
+  /** Moves to next image and shows loader if next slide is not cached yet. */
   nextImage() {
     if (!this.swiper) {
       return;
@@ -150,9 +134,9 @@ class StreetViewImage extends HTMLElement {
         this.hideLoader();
       }
     });
+
     this.swiper.slideNext();
   }
 }
 
 customElements.define("street-view-image", StreetViewImage);
-

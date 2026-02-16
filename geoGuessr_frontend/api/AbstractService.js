@@ -1,31 +1,18 @@
 /**
- * @file api/AbstractService.js
- * @description AbstractService module.
+ * Base API service with URL normalization shared by concrete services.
  */
 class Service {
-    /**
-     * Initializes instance state and service dependencies.
-     */
     constructor() {
         if (this.constructor == Service) {
             throw new Error(`${this.constructor.name} is an abstract class and cannot be instantiated.`);
         }
 
+        // Supports both absolute API hosts and relative "/api" style paths.
         this.apiBaseUrl = (import.meta.env.VITE_API_BASE_URL || "").replace(/\/$/, "");
     }
 
     /**
-     * Fetches data from a backend or external API endpoint.
-     * @returns {void}
-     */
-    fetchData() {
-        throw new Error("Method fetchdata() must be implemented.");
-    }
-
-    /**
-     * Builds a fully qualified API URL from a path segment.
-     * @param {*} path
-     * @returns {*}
+     * Builds an API URL while avoiding duplicate "/api/api" segments.
      */
     buildUrl(path) {
         const normalizedPath = String(path || "").startsWith("/") ? String(path) : `/${String(path || "")}`;

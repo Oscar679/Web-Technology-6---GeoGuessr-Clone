@@ -1,13 +1,9 @@
-﻿/**
- * @file components/ui/NavBar.js
- * @description NavBar module.
+/**
+ * Site-wide navigation component.
+ * Handles active-link styling, login/logout state, and mobile menu toggle.
  */
-
 class NavBar extends HTMLElement {
-    /**
-     * Runs when the custom element is attached to the DOM.
-     * @returns {void}
-     */
+    /** Renders markup and wires interaction handlers. */
     connectedCallback() {
         this.innerHTML = `
                 <nav class="sticky top-0 z-50 border-b border-slate-900/10 bg-white/70 backdrop-blur-md">
@@ -45,14 +41,13 @@ class NavBar extends HTMLElement {
                                 </div>
                                 <div class="hidden sm:ml-6 sm:block">
                                     <div class="flex space-x-4">
-                                        <!-- Current: "bg-gray-900 text-white", Default: "text-gray-300 hover:bg-white/5 hover:text-white" -->
                                         <a data-nav-link="leaderboard" href="Leaderboard.html" class="rounded-md px-3 py-2 text-sm font-medium text-slate-700 transition-colors hover:bg-teal-100/70 hover:text-teal-700">Leaderboard</a>
                                         <a data-nav-link="history" href="MatchHistory.html" class="rounded-md px-3 py-2 text-sm font-medium text-slate-700 transition-colors hover:bg-teal-100/70 hover:text-teal-700">Match History</a>
                                     </div>
-                                        <div class="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
-                                            <a data-nav-link="game" href="Game.html" aria-current="page" class="rounded-md bg-teal-700 px-16 py-2 text-sm font-medium text-white hover:bg-teal-600">Start Game</a>
-                                        </div>
+                                    <div class="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
+                                        <a data-nav-link="game" href="Game.html" aria-current="page" class="rounded-md bg-teal-700 px-16 py-2 text-sm font-medium text-white hover:bg-teal-600">Start Game</a>
                                     </div>
+                                </div>
                             </div>
                             <div class="absolute inset-y-0 right-0 flex items-center pr-2 sm:static sm:inset-auto sm:ml-6 sm:pr-0">
                                 <button type="button" class="relative rounded-full p-1 text-slate-500 focus:outline-2 focus:outline-offset-2 focus:outline-teal-700">
@@ -68,23 +63,27 @@ class NavBar extends HTMLElement {
                         <a data-mobile-auth-link href="logIn.html" class="mt-1 block rounded-md px-3 py-2 text-sm font-medium text-slate-700 transition-colors hover:bg-teal-100/70 hover:text-teal-700">Log in</a>
                     </div>
                 </nav>
-        `
+        `;
 
         const authLink = this.querySelector("[data-auth-link]");
         const mobileAuthLink = this.querySelector("[data-mobile-auth-link]");
         const token = localStorage.getItem("token");
+
         if (token) {
+            // User is authenticated: convert login links into logout actions.
             authLink.textContent = "Log out";
             authLink.href = "#";
             if (mobileAuthLink) {
                 mobileAuthLink.textContent = "Log out";
                 mobileAuthLink.href = "#";
             }
+
             authLink.addEventListener("click", (event) => {
                 event.preventDefault();
                 localStorage.removeItem("token");
                 window.location.href = "index.html";
             });
+
             mobileAuthLink?.addEventListener("click", (event) => {
                 event.preventDefault();
                 localStorage.removeItem("token");
@@ -104,10 +103,9 @@ class NavBar extends HTMLElement {
         if (activeKey) {
             const activeLink = this.querySelector(`[data-nav-link="${activeKey}"]`);
             const mobileActiveLink = this.querySelector(`[data-mobile-nav-link="${activeKey}"]`);
+
             if (activeLink) {
-                if (activeKey === "game") {
-                    // Keep button style unchanged when active.
-                } else {
+                if (activeKey !== "game") {
                     activeLink.classList.add("bg-teal-100/70", "text-teal-800");
                 }
             }
@@ -120,6 +118,7 @@ class NavBar extends HTMLElement {
         const closeIcon = this.querySelector("[data-menu-close-icon]");
 
         mobileButton?.addEventListener("click", () => {
+            // Toggle menu visibility and keep ARIA/icon state in sync.
             const isOpen = mobileMenu?.classList.toggle("hidden") === false;
             mobileButton.setAttribute("aria-expanded", String(isOpen));
             openIcon?.classList.toggle("hidden", isOpen);
@@ -128,5 +127,4 @@ class NavBar extends HTMLElement {
     }
 }
 
-customElements.define('nav-bar', NavBar);
-
+customElements.define("nav-bar", NavBar);

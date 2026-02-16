@@ -1,17 +1,11 @@
-﻿/**
- * @file components/MatchHistoryComponents/ui/MatchHistoryContainer.js
- * @description MatchHistoryContainer module.
- */
 import MatchHistory from "./logic/MatchHistory";
 
 /**
- * Represents the MatchHistoryContainer module and encapsulates its behavior.
+ * Match history page component.
+ * Renders aggregate stats and a row-by-row table with relative timestamps.
  */
 class MatchHistoryContainer extends HTMLElement {
-    /**
-     * Runs when the custom element is attached to the DOM.
-     * @returns {void}
-     */
+    /** Renders static layout and then loads authenticated user history. */
     connectedCallback() {
         this.innerHTML = `
             <div class="min-h-screen py-16">
@@ -43,12 +37,10 @@ class MatchHistoryContainer extends HTMLElement {
         this.loadHistory();
     }
 
-    /**
-     * Loads data required for the current view or component state.
-     * @returns {Promise<*>}
-     */
+    /** Fetches history, computes table rows, and paints summary widgets. */
     async loadHistory() {
         const token = localStorage.getItem("token");
+        // History is protected; redirect unauthenticated users to login.
         if (!token) {
             window.location.href = "logIn.html";
             return;
@@ -107,6 +99,7 @@ class MatchHistoryContainer extends HTMLElement {
                         </thead>
                         <tbody class="text-slate-800">
                             ${games.map((row) => {
+                // Convert completion timestamp into short relative labels for readability.
                 const completedAt = new Date(row.completed_at);
                 const diffMs = Date.now() - completedAt.getTime();
                 const minutesAgo = Math.max(0, Math.floor(diffMs / 60000));
@@ -118,10 +111,11 @@ class MatchHistoryContainer extends HTMLElement {
                 } else if (hoursAgo >= 1) {
                     timeLabel = `${hoursAgo}h ago`;
                 }
+
                 let outcomeClass = "bg-white";
                 let outcomeLabel = "Pending";
                 let outcomeBadgeClass = "bg-slate-100 text-slate-700";
-                if (row.opponent_score !== null && row.opponent_score !== undefined) {
+                if (row.opponent_score != null) {
                     if (row.score < row.opponent_score) {
                         outcomeClass = "bg-green-50";
                         outcomeLabel = "W";
@@ -136,6 +130,7 @@ class MatchHistoryContainer extends HTMLElement {
                         outcomeBadgeClass = "bg-slate-200 text-slate-700";
                     }
                 }
+
                 return `
                                 <tr class="border-t border-slate-100 ${outcomeClass}">
                                     <td class="py-2 pr-4">
@@ -160,4 +155,3 @@ class MatchHistoryContainer extends HTMLElement {
 }
 
 customElements.define("match-history", MatchHistoryContainer);
-

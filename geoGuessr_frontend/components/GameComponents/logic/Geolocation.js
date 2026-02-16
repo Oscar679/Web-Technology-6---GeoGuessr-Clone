@@ -1,48 +1,35 @@
-﻿/**
- * @file components/GameComponents/logic/Geolocation.js
- * @description Geolocation module.
+/**
+ * Utility methods for geographic calculations.
  */
-
 class Geolocation {
-    /**
-     * Initializes instance state and service dependencies.
-     * @param {*} lat
-     * @param {*} lng
-     */
     constructor(lat, lng) {
         this.lat = lat;
         this.lng = lng;
     }
 
     /**
-     * Executes the haversine workflow for this module.
-     * @param {*} locations
-     * @param {*} guessedCoordinates
-     * @returns {void}
+     * Returns great-circle distance in kilometers between answer and guess.
      */
     static haversine(locations, guessedCoordinates) {
-        // distance between latitudes
-        // and longitudes
-        let lat1 = locations['lat'];
-        let lon1 = locations['lng'];
+        let lat1 = locations["lat"];
+        let lon1 = locations["lng"];
 
-        let lat2 = guessedCoordinates['lat'];
-        let lon2 = guessedCoordinates['lng'];
+        let lat2 = guessedCoordinates["lat"];
+        let lon2 = guessedCoordinates["lng"];
 
         let dLat = (lat2 - lat1) * Math.PI / 180.0;
         let dLon = (lon2 - lon1) * Math.PI / 180.0;
 
-        // convert to radiansa
-        lat1 = (lat1) * Math.PI / 180.0;
-        lat2 = (lat2) * Math.PI / 180.0;
+        // Convert coordinates to radians.
+        lat1 = lat1 * Math.PI / 180.0;
+        lat2 = lat2 * Math.PI / 180.0;
 
-        // apply formulae
-        let a = Math.pow(Math.sin(dLat / 2), 2) +
-            Math.pow(Math.sin(dLon / 2), 2) *
-            Math.cos(lat1) *
-            Math.cos(lat2);
-        let rad = 6371;
-        let c = 2 * Math.asin(Math.sqrt(a));
+        // Apply Haversine formula.
+        const a = Math.pow(Math.sin(dLat / 2), 2) +
+            Math.pow(Math.sin(dLon / 2), 2) * Math.cos(lat1) * Math.cos(lat2);
+        const rad = 6371;
+        const c = 2 * Math.asin(Math.sqrt(a));
+
         return rad * c;
     }
 }

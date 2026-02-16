@@ -2,9 +2,11 @@
 
 namespace App\Services;
 
-use App\Services\MapillaryService;
 use PDO;
 
+/**
+ * Owns core game lifecycle operations: creation, scoring persistence, history, and rankings.
+ */
 class GameService
 {
     private MapillaryService $mapillary;
@@ -18,11 +20,17 @@ class GameService
         $this->pdo = $pdo;
     }
 
+    /**
+     * Generates a share-safe random game identifier.
+     */
     private function generateId(): string
     {
         return bin2hex(random_bytes(16));
     }
 
+    /**
+     * Creates a new game and stores the generated location set.
+     */
     public function start(int $userId): array
     {
         $gameId = $this->generateId();
@@ -45,6 +53,9 @@ class GameService
         ];
     }
 
+    /**
+     * Loads an existing game by id. Throws when missing/corrupt.
+     */
     public function getGame(string $gameId): array
     {
         $stmt = $this->pdo->prepare(
@@ -74,6 +85,9 @@ class GameService
         ];
     }
 
+    /**
+     * Returns top results for one game. Lower score is better.
+     */
     public function getResults(string $gameId, int $limit = 10): array
     {
         $limit = max(1, min($limit, 50));
@@ -100,6 +114,9 @@ class GameService
         return $stmt->fetchAll();
     }
 
+    /**
+     * Returns global leaderboard sorted by rating and tie-breakers.
+     */
     public function getGlobalLeaderboard(int $limit = 50): array
     {
         $limit = max(1, min($limit, 200));
@@ -119,6 +136,9 @@ class GameService
         return $stmt->fetchAll();
     }
 
+    /**
+     * Returns a user's recent games including opponent name/score when available.
+     */
     public function getUserHistory(int $userId, int $limit = 50): array
     {
         $limit = max(1, min($limit, 200));
@@ -156,8 +176,13 @@ class GameService
         return $stmt->fetchAll();
     }
 
+    /**
+     * Persists one player's result and enforces 1v1 constraints.
+     * Returns: "saved", "already_played", or "game_full".
+     */
     public function saveResult(string $gameId, int $userId, int $score): string
     {
+        // Rule 1: a user may only submit once per game.
         $checkStmt = $this->pdo->prepare(
             "SELECT COUNT(*)
              FROM game_results
@@ -172,7 +197,7 @@ class GameService
             return "already_played";
         }
 
-        // Enforce 1v1: only two unique users can submit to the same game.
+        // Rule 2: each game accepts at most two unique players (1v1).
         $countPlayersStmt = $this->pdo->prepare(
             "SELECT COUNT(DISTINCT user_id)
              FROM game_results
@@ -196,11 +221,16 @@ class GameService
             "score"   => $score
         ]);
 
+        // Stats/rating are recomputed after each valid submission.
         $this->updateStatsForGame($gameId);
         $this->updateRatings();
         return "saved";
     }
 
+    /**
+     * Recomputes wins/games/win% for players who participated in this game.
+     * Only finished games (2+ submissions) are counted.
+     */
     private function updateStatsForGame(string $gameId): void
     {
         $stmt = $this->pdo->prepare(
@@ -254,10 +284,14 @@ class GameService
         }
     }
 
+    /**
+     * Rebuilds lightweight rating values from completed game outcomes in chronological order.
+     */
     private function updateRatings(): void
     {
         $ratings = [];
 
+        // Start everyone at rating 0, then apply game-by-game adjustments.
         $usersStmt = $this->pdo->query("SELECT id FROM users");
         $userIds = $usersStmt->fetchAll(PDO::FETCH_COLUMN);
         foreach ($userIds as $uid) {
@@ -295,9 +329,11 @@ class GameService
             $secondUser = (int)$second['user_id'];
 
             if ($first['score'] === $second['score']) {
+                // Tie: both gain a small positive increment.
                 $ratings[$firstUser] = max(0, ($ratings[$firstUser] ?? 0) + 10);
                 $ratings[$secondUser] = max(0, ($ratings[$secondUser] ?? 0) + 10);
             } else {
+                // Win/loss: winner gets a larger boost, loser loses points (floored at 0).
                 $ratings[$firstUser] = max(0, ($ratings[$firstUser] ?? 0) + 20);
                 $ratings[$secondUser] = max(0, ($ratings[$secondUser] ?? 0) - 15);
             }

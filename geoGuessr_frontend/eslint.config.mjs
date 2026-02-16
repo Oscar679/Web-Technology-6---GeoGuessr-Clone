@@ -33,4 +33,13 @@ export default [
       "no-unused-vars": ["warn", { argsIgnorePattern: "^_" }],
     },
   },
+  {
+    files: ["vite.config.js"],
+    languageOptions: {
+      globals: {
+        __dirname: "readonly",
+        process: "readonly",
+      },
+    },
+  },
 ];

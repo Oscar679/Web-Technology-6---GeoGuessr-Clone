@@ -1,26 +1,14 @@
-﻿/**
- * @file api/UserService.js
- * @description UserService module.
- */
 import Service from "./AbstractService";
 
 /**
- * Represents the UserService module and encapsulates its behavior.
+ * Handles authentication-related API calls.
  */
 class UserService extends Service {
-    /**
-     * Initializes instance state and service dependencies.
-     */
     constructor() {
         super();
     }
 
-    /**
-     * Executes the logIn workflow for this module.
-     * @param {*} name
-     * @param {*} password
-     * @returns {Promise<*>}
-     */
+    /** Sends login credentials and returns API payload (token or error). */
     async logIn(name, password) {
         const url = this.buildUrl("/api/login");
 
@@ -36,12 +24,7 @@ class UserService extends Service {
         }
     }
 
-    /**
-     * Executes the signUp workflow for this module.
-     * @param {*} name
-     * @param {*} password
-     * @returns {Promise<*>}
-     */
+    /** Sends registration request and returns API payload (status or error). */
     async signUp(name, password) {
         const url = this.buildUrl("/api/register");
 
@@ -59,4 +42,3 @@ class UserService extends Service {
 }
 
 export default UserService;
-

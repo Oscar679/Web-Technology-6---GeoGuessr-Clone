@@ -1,24 +1,14 @@
-﻿/**
- * @file api/GameService.js
- * @description GameService module.
- */
 import Service from "./AbstractService";
 
 /**
- * Represents the GameService module and encapsulates its behavior.
+ * Handles all game-related API calls.
  */
 class GameService extends Service {
-    /**
-     * Initializes instance state and service dependencies.
-     */
     constructor() {
         super();
     }
 
-    /**
-     * Executes the startGame workflow for this module.
-     * @returns {Promise<*>}
-     */
+    /** Starts a new game for the authenticated user. */
     async startGame() {
         const token = localStorage.getItem("token");
 
@@ -42,11 +32,7 @@ class GameService extends Service {
         return data;
     }
 
-    /**
-     * Returns derived or stored state from this component.
-     * @param {*} gameId
-     * @returns {Promise<*>}
-     */
+    /** Loads an existing game by share id. */
     async getGame(gameId) {
         const token = localStorage.getItem("token");
         const response = await fetch(
@@ -69,11 +55,7 @@ class GameService extends Service {
         return data;
     }
 
-    /**
-     * Returns derived or stored state from this component.
-     * @param {*} gameId
-     * @returns {Promise<*>}
-     */
+    /** Gets result rows for one game (used on completion page). */
     async getResults(gameId) {
         const token = localStorage.getItem("token");
         const response = await fetch(
@@ -96,10 +78,7 @@ class GameService extends Service {
         return data;
     }
 
-    /**
-     * Returns derived or stored state from this component.
-     * @returns {Promise<*>}
-     */
+    /** Gets global top players for leaderboard page. */
     async getGlobalLeaderboard() {
         const response = await fetch(
             this.buildUrl("/api/leaderboard"),
@@ -120,10 +99,7 @@ class GameService extends Service {
         return data;
     }
 
-    /**
-     * Returns derived or stored state from this component.
-     * @returns {Promise<*>}
-     */
+    /** Gets authenticated user's match history list. */
     async getUserHistory() {
         const token = localStorage.getItem("token");
         const response = await fetch(
@@ -147,9 +123,7 @@ class GameService extends Service {
     }
 
     /**
-     * Executes the saveResult workflow for this module.
-     * @param {*} game
-     * @returns {Promise<*>}
+     * Submits final game score. Backend enforces one submission/user and 1v1 cap.
      */
     async saveResult(game) {
         const token = localStorage.getItem("token");
@@ -169,6 +143,7 @@ class GameService extends Service {
         );
 
         if (response.status === 409) {
+            // Backend returns specific conflict reasons; surface those in UI.
             let message = "You have already played this game.";
             try {
                 const data = await response.json();
@@ -188,4 +163,3 @@ class GameService extends Service {
 }
 
 export default GameService;
-

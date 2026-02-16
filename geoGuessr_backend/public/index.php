@@ -1,6 +1,4 @@
 <?php
-ini_set('display_errors', 1);
-error_reporting(E_ALL);
 
 use App\Services\GameService;
 use App\Services\UserService;
@@ -21,6 +19,11 @@ require __DIR__ . '/../vendor/autoload.php';
 $dotenv = Dotenv::createImmutable(__DIR__ . '/..');
 $dotenv->load();
 
+// Keep verbose errors local-only; production should not expose internals.
+$debug = isset($_ENV['APP_DEBUG']) && filter_var($_ENV['APP_DEBUG'], FILTER_VALIDATE_BOOL);
+ini_set('display_errors', $debug ? '1' : '0');
+error_reporting($debug ? E_ALL : 0);
+
 /*
 |--------------------------------------------------------------------------
 | Container
@@ -38,6 +41,11 @@ AppFactory::setContainer($container);
 |--------------------------------------------------------------------------
 */
 $app = AppFactory::create();
+// Small helper to keep JSON responses consistent across endpoints.
+$json = static function (Response $response, array $payload, int $status = 200): Response {
+    $response->getBody()->write(json_encode($payload));
+    return $response->withStatus($status)->withHeader('Content-Type', 'application/json');
+};
 $appBasePath = isset($_ENV['APP_BASE_PATH']) ? trim((string)$_ENV['APP_BASE_PATH']) : '';
 if ($appBasePath !== '') {
     $app->setBasePath($appBasePath);
@@ -49,7 +57,7 @@ if ($appBasePath !== '') {
 |--------------------------------------------------------------------------
 */
 $app->addRoutingMiddleware();
-$app->addErrorMiddleware(true, true, true);
+$app->addErrorMiddleware($debug, $debug, $debug);
 
 
 /*
@@ -62,6 +70,7 @@ $authMiddleware = function (Request $request, $handler) use ($container) {
     $authHeader = $request->getHeaderLine('Authorization');
 
     if (!str_starts_with($authHeader, 'Bearer ')) {
+        // We return 401 without body; frontend maps this to login flow.
         return (new \Slim\Psr7\Response())->withStatus(401);
     }
 
@@ -72,6 +81,7 @@ $authMiddleware = function (Request $request, $handler) use ($container) {
     $user = $authService->verifyToken($token);
 
     if (!$user) {
+        // Invalid or expired token.
         return (new \Slim\Psr7\Response())->withStatus(401);
     }
 
@@ -85,34 +95,31 @@ $authMiddleware = function (Request $request, $handler) use ($container) {
 | PROTECTED API ROUTES
 |--------------------------------------------------------------------------
 */
-$app->group('/api', function ($group) {
+$app->group('/api', function ($group) use ($json) {
 
     // Start game
-    $group->put('/startgame', function (Request $request, Response $response) {
+    $group->put('/startgame', function (Request $request, Response $response) use ($json) {
         $user = $request->getAttribute('user');
 
         /** @var GameService $gameService */
         $gameService = $this->get(GameService::class);
         $data = $gameService->start($user->user_id);
 
-        $response->getBody()->write(json_encode($data));
-        return $response->withHeader('Content-Type', 'application/json');
+        return $json($response, $data);
     });
 
     // Load existing game (requires auth)
-    $group->get('/games/{gameId}', function (Request $request, Response $response, array $args) {
+    $group->get('/games/{gameId}', function (Request $request, Response $response, array $args) use ($json) {
         /** @var GameService $gameService */
         $gameService = $this->get(GameService::class);
 
         try {
             $data = $gameService->getGame($args['gameId']);
         } catch (\RuntimeException $e) {
-            $response->getBody()->write(json_encode(['error' => $e->getMessage()]));
-            return $response->withStatus(404)->withHeader('Content-Type', 'application/json');
+            return $json($response, ['error' => $e->getMessage()], 404);
         }
 
-        $response->getBody()->write(json_encode($data));
-        return $response->withHeader('Content-Type', 'application/json');
+        return $json($response, $data);
     });
 
     // Save result
@@ -120,51 +127,45 @@ $app->group('/api', function ($group) {
         Request $request,
         Response $response,
         array $args
-    ) {
+    ) use ($json) {
         $user = $request->getAttribute('user');
         $data = json_decode($request->getBody()->getContents(), true);
 
         if (!is_array($data) || !isset($data['score']) || !is_numeric($data['score'])) {
-            $response->getBody()->write(json_encode(['error' => 'Invalid score payload']));
-            return $response->withStatus(400)->withHeader('Content-Type', 'application/json');
+            return $json($response, ['error' => 'Invalid score payload'], 400);
         }
 
         /** @var GameService $gameService */
         $gameService = $this->get(GameService::class);
         $status = $gameService->saveResult($args['gameId'], $user->user_id, (int)$data['score']);
         if ($status === 'already_played') {
-            $response->getBody()->write(json_encode(['error' => 'You already played this game']));
-            return $response->withStatus(409)->withHeader('Content-Type', 'application/json');
+            return $json($response, ['error' => 'You already played this game'], 409);
         }
         if ($status === 'game_full') {
-            $response->getBody()->write(json_encode(['error' => 'This 1v1 game already has two players']));
-            return $response->withStatus(409)->withHeader('Content-Type', 'application/json');
+            return $json($response, ['error' => 'This 1v1 game already has two players'], 409);
         }
 
-        $response->getBody()->write(json_encode(['status' => 'saved']));
-        return $response->withHeader('Content-Type', 'application/json');
+        return $json($response, ['status' => 'saved']);
     });
 
     // Get leaderboard results
-    $group->get('/games/{gameId}/results', function (Request $request, Response $response, array $args) {
+    $group->get('/games/{gameId}/results', function (Request $request, Response $response, array $args) use ($json) {
         /** @var GameService $gameService */
         $gameService = $this->get(GameService::class);
         $results = $gameService->getResults($args['gameId']);
 
-        $response->getBody()->write(json_encode(['results' => $results]));
-        return $response->withHeader('Content-Type', 'application/json');
+        return $json($response, ['results' => $results]);
     });
 
     // Get current user's match history
-    $group->get('/users/me/games', function (Request $request, Response $response) {
+    $group->get('/users/me/games', function (Request $request, Response $response) use ($json) {
         $user = $request->getAttribute('user');
 
         /** @var GameService $gameService */
         $gameService = $this->get(GameService::class);
         $history = $gameService->getUserHistory($user->user_id);
 
-        $response->getBody()->write(json_encode(['games' => $history]));
-        return $response->withHeader('Content-Type', 'application/json');
+        return $json($response, ['games' => $history]);
     });
 })->add($authMiddleware);
 
@@ -183,64 +184,64 @@ $app->get('/api/health', function (Request $request, Response $response) {
     return $response;
 });
 
-$app->post('/api/login', function (Request $request, Response $response) {
+$app->post('/api/login', function (Request $request, Response $response) use ($json) {
     $data = json_decode($request->getBody()->getContents(), true);
+    $name = is_array($data) && isset($data['name']) ? trim((string)$data['name']) : '';
+    $password = is_array($data) && isset($data['password']) ? (string)$data['password'] : '';
+
+    // Validate payload before querying storage.
+    if ($name === '' || $password === '') {
+        return $json($response, ['error' => 'Name and password are required'], 400);
+    }
 
     /** @var UserService $userService */
     $userService = $this->get(UserService::class);
     /** @var AuthService $authService */
     $authService = $this->get(AuthService::class);
 
-    $user = $userService->getUserByCredentials($data['name'], $data['password']);
+    $user = $userService->getUserByCredentials($name, $password);
 
     if (!$user) {
-        $response->getBody()->write(json_encode(['error' => 'Invalid credentials']));
-        return $response->withStatus(401)->withHeader('Content-Type', 'application/json');
+        return $json($response, ['error' => 'Invalid credentials'], 401);
     }
 
     $token = $authService->createToken($user['id'], $user['name']);
 
-    $response->getBody()->write(json_encode(['token' => $token]));
-    return $response->withHeader('Content-Type', 'application/json');
+    return $json($response, ['token' => $token]);
 });
 
-$app->get('/api/leaderboard', function (Request $request, Response $response) {
+$app->get('/api/leaderboard', function (Request $request, Response $response) use ($json) {
     /** @var GameService $gameService */
     $gameService = $this->get(GameService::class);
     $results = $gameService->getGlobalLeaderboard();
 
-    $response->getBody()->write(json_encode(['results' => $results]));
-    return $response->withHeader('Content-Type', 'application/json');
+    return $json($response, ['results' => $results]);
 });
 
-$app->post('/api/register', function (Request $request, Response $response) {
+$app->post('/api/register', function (Request $request, Response $response) use ($json) {
     $data = json_decode($request->getBody()->getContents(), true);
 
     $name = isset($data['name']) ? trim((string)$data['name']) : '';
     $password = isset($data['password']) ? (string)$data['password'] : '';
 
     if ($name === '' || $password === '') {
-        $response->getBody()->write(json_encode(['error' => 'Name and password are required']));
-        return $response->withStatus(400)->withHeader('Content-Type', 'application/json');
+        return $json($response, ['error' => 'Name and password are required'], 400);
     }
 
     /** @var UserService $userService */
     $userService = $this->get(UserService::class);
 
     if ($userService->getUserByName($name)) {
-        $response->getBody()->write(json_encode(['error' => 'Username already taken']));
-        return $response->withStatus(409)->withHeader('Content-Type', 'application/json');
+        return $json($response, ['error' => 'Username already taken'], 409);
     }
 
     try {
         $userService->addUser($name, $password);
     } catch (\Throwable $e) {
-        $response->getBody()->write(json_encode(['error' => 'Unable to create user']));
-        return $response->withStatus(400)->withHeader('Content-Type', 'application/json');
+        return $json($response, ['error' => 'Unable to create user'], 400);
     }
 
-    $response->getBody()->write(json_encode(['status' => 'created']));
-    return $response->withStatus(201)->withHeader('Content-Type', 'application/json');
+    return $json($response, ['status' => 'created'], 201);
 });
 
 /*

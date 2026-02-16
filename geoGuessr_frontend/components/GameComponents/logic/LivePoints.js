@@ -1,19 +1,12 @@
-﻿/**
- * @file components/GameComponents/logic/LivePoints.js
- * @description LivePoints module.
+/**
+ * Lightweight score model for the live-points UI element.
  */
-
 class LivePoints {
-
-    /**
-     * Updates component or game state after an interaction.
-     * @param {*} points
-     * @returns {void}
-     */
+    /** Stores rounded distance score so UI renders whole-number kilometers. */
     updatePoints(points) {
-        return this.points = Math.round(points);
+        this.points = Math.round(points);
+        return this.points;
     }
 }
-
 
 export default LivePoints;

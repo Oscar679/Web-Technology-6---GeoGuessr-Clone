@@ -1,27 +1,17 @@
-﻿/**
- * @file components/MatchHistoryComponents/ui/logic/MatchHistory.js
- * @description MatchHistory module.
- */
 import GameService from "../../../../api/GameService";
 
 /**
- * Represents the MatchHistory module and encapsulates its behavior.
+ * Provides match history data + derived summary stats for UI rendering.
  */
 class MatchHistory {
     static instance;
 
-    /**
-     * Initializes instance state and service dependencies.
-     */
     constructor() {
         MatchHistory.instance = this;
         this.gameService = new GameService();
     }
 
-    /**
-     * Returns the singleton instance for this class.
-     * @returns {*}
-     */
+    /** Singleton getter used by the match history page component. */
     static getInstance() {
         if (!MatchHistory.instance) {
             MatchHistory.instance = new MatchHistory();
@@ -31,13 +21,14 @@ class MatchHistory {
     }
 
     /**
-     * Fetches data from a backend or external API endpoint.
-     * @returns {Promise<*>}
+     * Loads history from API and computes wins/losses/ties/win rate.
+     * Pending games (no opponent score yet) are excluded from summary stats.
      */
     async fetchHistory() {
         const data = await this.gameService.getUserHistory();
         const games = Array.isArray(data.games) ? data.games : [];
-        const finishedGames = games.filter((row) => row.opponent_score !== null && row.opponent_score !== undefined);
+
+        const finishedGames = games.filter((row) => row.opponent_score != null);
         const wins = finishedGames.filter((row) => row.score < row.opponent_score).length;
         const losses = finishedGames.filter((row) => row.score > row.opponent_score).length;
         const ties = finishedGames.filter((row) => row.score === row.opponent_score).length;
@@ -58,4 +49,3 @@ class MatchHistory {
 }
 
 export default MatchHistory;
-

@@ -1,38 +1,29 @@
-﻿/**
- * @file components/GameComponents/logic/Game.js
- * @description Game module.
- */
-import Geolocation from "../logic/Geolocation"
+import Geolocation from "../logic/Geolocation";
 import GameService from "../../../api/GameService";
 
-// Singleton implementation
 /**
- * Represents the Game module and encapsulates its behavior.
+ * In-memory game state singleton used across game UI components.
  */
 class Game {
     static instance;
-    /**
-     * Initializes instance state and service dependencies.
-     * @param {*} coordinates
-     */
+
     constructor(coordinates) {
         this.round = 0;
         this.locations = coordinates;
-        this.gameId = null; // backend sets this value
+        this.gameId = null; // Set after game is created/fetched from backend.
         this.score = 0;
 
         this.gameService = new GameService();
     }
 
     /**
-     * Returns the singleton instance for this class.
-     * @param {*} coordinates
-     * @returns {*}
+     * Returns the singleton game instance.
+     * Coordinates are required only on the first initialization.
      */
     static getInstance(coordinates) {
         if (!Game.instance) {
             if (!coordinates) {
-                throw new Error("Game must be instatiated with coordinates");
+                throw new Error("Game must be instantiated with coordinates");
             }
             Game.instance = new Game(coordinates);
         }
@@ -41,55 +32,50 @@ class Game {
     }
 
     /**
-     * Submits user input or game data to the backend.
-     * @param {*} guessedCoordinates
-     * @returns {void}
+     * Applies one guess to the current round and updates score/progress.
      */
     submitGuess(guessedCoordinates) {
         if (this.round < 5) {
             const distance = Geolocation.haversine(this.locations[this.round], guessedCoordinates);
-            this.score += distance; // for now score is just the distance, but we can make it more complex later on
-            const livePointsElement = document.querySelector('live-points');
+            // Lower score is better; each round adds distance error in kilometers.
+            this.score += distance;
+
+            const livePointsElement = document.querySelector("live-points");
             if (livePointsElement) {
-                livePointsElement.updatePoints(this.score); // update visible live points UI
+                livePointsElement.updatePoints(this.score);
             }
+
             this.updateRound();
         } else {
             console.error(`Maximum amount of rounds played: ${this.round}`);
-            return;
         }
     }
 
     /**
-     * Updates component or game state after an interaction.
-     * @returns {void}
+     * Advances the round counter and emits a UI progress event.
      */
     updateRound() {
         this.round += 1;
+
         document.dispatchEvent(new CustomEvent("game-round-changed", {
             detail: {
                 currentRound: Math.min(this.round + 1, 5),
                 totalRounds: 5
             }
         }));
-        if (this.round == 5) {
+
+        if (this.round === 5) {
             this.completeGame();
-            return;
         }
     }
 
-    /**
-     * Sets internal state used by this component.
-     * @param {*} gameId
-     * @returns {void}
-     */
+    /** Stores backend game id so score submission can target the correct game. */
     setGameId(gameId) {
         this.gameId = gameId;
     }
 
     /**
-     * Executes the completeGame workflow for this module.
-     * @returns {void}
+     * Persists final score and navigates to completion page.
      */
     completeGame() {
         this.gameService.saveResult(Game.instance)
@@ -111,4 +97,3 @@ class Game {
 }
 
 export default Game;
-
