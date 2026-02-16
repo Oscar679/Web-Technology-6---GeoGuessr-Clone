@@ -17,8 +17,8 @@ class GameContainer extends HTMLElement {
    */
   connectedCallback() {
     this.innerHTML = `
-     <div class="h-full min-h-0 overflow-hidden py-3">
-        <div class="mx-auto flex h-full max-w-7xl flex-col px-6 lg:px-8">
+     <div class="min-h-full py-3 lg:h-full lg:min-h-0 lg:overflow-hidden">
+        <div class="mx-auto flex min-h-full max-w-7xl flex-col px-6 lg:h-full lg:min-h-0 lg:px-8">
           <div class="mb-3 fade-in-up">
             <p class="text-xs font-semibold uppercase tracking-[0.16em] text-teal-700">Game Session</p>
             <h1 class="mt-1 text-xl font-semibold text-slate-900 sm:text-2xl">Find The Location</h1>
@@ -58,9 +58,9 @@ class GameContainer extends HTMLElement {
           </div>
           </div>
 
-          <div class="flex min-h-0 flex-1 flex-col gap-3 lg:flex-row">
+          <div class="flex flex-col gap-3 lg:min-h-0 lg:flex-1 lg:flex-row">
 
-            <div class="play-card fade-in-up fade-in-delay-1 flex min-h-0 w-full flex-col overflow-hidden rounded-3xl lg:w-1/2">
+            <div class="play-card fade-in-up fade-in-delay-1 flex h-[22rem] w-full flex-col overflow-hidden rounded-3xl sm:h-[26rem] lg:h-auto lg:min-h-0 lg:w-1/2">
               <div class="shrink-0 px-4 pb-3 pt-4">
                 <p class="text-[11px] font-semibold uppercase tracking-[0.16em] text-teal-700">Clue</p>
                 <p class="mt-0.5 text-sm font-semibold text-slate-800">Street View</p>
@@ -72,7 +72,7 @@ class GameContainer extends HTMLElement {
               </div>
             </div>
 
-            <div class="play-card fade-in-up fade-in-delay-2 flex min-h-0 w-full flex-col overflow-hidden rounded-3xl lg:w-1/2">
+            <div class="play-card fade-in-up fade-in-delay-2 flex h-[22rem] w-full flex-col overflow-hidden rounded-3xl sm:h-[26rem] lg:h-auto lg:min-h-0 lg:w-1/2">
               <div class="shrink-0 px-4 pb-3 pt-4">
                 <div class="flex items-center justify-between gap-3">
                   <div>

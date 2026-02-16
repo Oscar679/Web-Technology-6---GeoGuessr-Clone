@@ -11,11 +11,11 @@
     <title>Play Game</title>
 </head>
 
-<body class="h-screen overflow-hidden">
+<body class="min-h-screen overflow-x-hidden lg:h-screen lg:overflow-hidden">
     <page-loader></page-loader>
     <nav-bar></nav-bar>
-    <main class="h-[calc(100vh-4rem)] overflow-hidden">
-        <game-container class="block h-full"></game-container>
+    <main class="min-h-[calc(100vh-4rem)] overflow-y-auto lg:h-[calc(100vh-4rem)] lg:overflow-hidden">
+        <game-container class="block min-h-full lg:h-full"></game-container>
     </main>
 </body>
 
