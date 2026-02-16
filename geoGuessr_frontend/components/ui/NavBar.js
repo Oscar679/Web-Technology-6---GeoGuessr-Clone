@@ -10,12 +10,12 @@ class NavBar extends HTMLElement {
      */
     connectedCallback() {
         this.innerHTML = `
-                <nav class="relative bg-gray-800 absolute sticky top-0">
+                <nav class="sticky top-0 z-50 border-b border-slate-900/10 bg-white/70 backdrop-blur-md">
                     <div class="mx-auto max-w-7xl px-2 sm:px-6 lg:px-8">
                         <div class="relative flex h-16 items-center justify-between">
                             <div class="absolute inset-y-0 left-0 flex items-center sm:hidden">
                                 <!-- Mobile menu button-->
-                                <button type="button" command="--toggle" commandfor="mobile-menu" class="relative inline-flex items-center justify-center rounded-md p-2 text-gray-400 hover:bg-white/5 hover:text-white focus:outline-2 focus:-outline-offset-1 focus:outline-indigo-500">
+                                <button type="button" command="--toggle" commandfor="mobile-menu" class="relative inline-flex items-center justify-center rounded-md p-2 text-slate-500 transition-colors hover:bg-teal-100/70 hover:text-teal-700 focus:outline-2 focus:-outline-offset-1 focus:outline-teal-700">
                                     <span class="absolute -inset-0.5"></span>
                                     <span class="sr-only">Open main menu</span>
                                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" data-slot="icon" aria-hidden="true" class="size-6 in-aria-expanded:hidden">
@@ -28,7 +28,7 @@ class NavBar extends HTMLElement {
                             </div>
                             <div class="flex flex-1 items-center justify-center sm:items-stretch sm:justify-start">
                                 <div class="flex shrink-0 items-center">
-                                    <a href="index.html" class="text-gray-200 hover:text-white" aria-label="Home">
+                                    <a href="index.html" class="text-slate-700 hover:text-slate-950" aria-label="Home">
                                         <svg viewBox="0 0 24 24" class="h-8 w-8" aria-hidden="true">
                                             <defs>
                                                 <radialGradient id="globeOcean" cx="35%" cy="30%" r="70%">
@@ -46,17 +46,17 @@ class NavBar extends HTMLElement {
                                 <div class="hidden sm:ml-6 sm:block">
                                     <div class="flex space-x-4">
                                         <!-- Current: "bg-gray-900 text-white", Default: "text-gray-300 hover:bg-white/5 hover:text-white" -->
-                                        <a href="Leaderboard.html" class="rounded-md px-3 py-2 text-sm font-medium text-gray-300 hover:bg-white/5 hover:text-white">Leaderboard</a>
-                                        <a href="MatchHistory.html" class="rounded-md px-3 py-2 text-sm font-medium text-gray-300 hover:bg-white/5 hover:text-white">Match History</a>
+                                        <a data-nav-link="leaderboard" href="Leaderboard.html" class="rounded-md px-3 py-2 text-sm font-medium text-slate-700 transition-colors hover:bg-teal-100/70 hover:text-teal-700">Leaderboard</a>
+                                        <a data-nav-link="history" href="MatchHistory.html" class="rounded-md px-3 py-2 text-sm font-medium text-slate-700 transition-colors hover:bg-teal-100/70 hover:text-teal-700">Match History</a>
                                     </div>
                                         <div class="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
-                                            <a href="Game.html" aria-current="page" class="rounded-md bg-green-700 px-16 py-2 text-sm font-medium text-gray-100 hover:bg-green-500 hover:text-white">Start Game</a>
+                                            <a data-nav-link="game" href="Game.html" aria-current="page" class="rounded-md bg-teal-700 px-16 py-2 text-sm font-medium text-white hover:bg-teal-600">Start Game</a>
                                         </div>
                                     </div>
                             </div>
                             <div class="absolute inset-y-0 right-0 flex items-center pr-2 sm:static sm:inset-auto sm:ml-6 sm:pr-0">
-                                <button type="button" class="relative rounded-full p-1 text-gray-400 focus:outline-2 focus:outline-offset-2 focus:outline-indigo-500">
-                                     <a href="logIn.html" class="rounded-md px-3 py-2 text-sm font-medium text-gray-300 hover:bg-white/5 hover:text-white" data-auth-link>Log in</a>
+                                <button type="button" class="relative rounded-full p-1 text-slate-500 focus:outline-2 focus:outline-offset-2 focus:outline-teal-700">
+                                     <a href="logIn.html" class="rounded-md px-3 py-2 text-sm font-medium text-slate-700 transition-colors hover:bg-teal-100/70 hover:text-teal-700" data-auth-link>Log in</a>
                                 </button>
                             </div>
                         </div>
@@ -74,6 +74,26 @@ class NavBar extends HTMLElement {
                 localStorage.removeItem("token");
                 window.location.href = "index.html";
             });
+        }
+
+        const page = (window.location.pathname.split("/").pop() || "index.html").toLowerCase();
+        const activeKey = page === "leaderboard.html"
+            ? "leaderboard"
+            : page === "matchhistory.html"
+                ? "history"
+                : page === "game.html"
+                    ? "game"
+                    : "";
+
+        if (activeKey) {
+            const activeLink = this.querySelector(`[data-nav-link="${activeKey}"]`);
+            if (activeLink) {
+                if (activeKey === "game") {
+                    activeLink.classList.add("ring-2", "ring-teal-300", "ring-offset-2", "ring-offset-white/70");
+                } else {
+                    activeLink.classList.add("bg-teal-100/70", "text-teal-800");
+                }
+            }
         }
     }
 }

@@ -3,15 +3,22 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script type="module" src="./components/ui/NavBar.js"></script>
+    <script type="module" src="./components/ui/PageLoader.js"></script>
     <script type="module" src="./components/GameComponents/ui/GameWinnerContainer.js"></script>
     <link rel="stylesheet" href="./src/index.css">
     <title>Game Result</title>
 </head>
-<body class="bg-gray-100 min-h-screen">
+<body class="min-h-screen">
+    <page-loader></page-loader>
     <nav-bar></nav-bar>
     <div class="mx-auto max-w-3xl px-6 pt-10">
-        <h1 class="text-2xl font-semibold text-gray-900">Game Completed</h1>
-        <p class="mt-1 text-sm text-gray-600">Winner details for this match</p>
+        <div class="app-panel overflow-hidden rounded-2xl">
+            <div class="bg-gradient-to-r from-teal-50 to-cyan-50 px-6 py-5">
+                <p class="text-xs font-semibold uppercase tracking-[0.16em] text-teal-700">Completed</p>
+                <h1 class="mt-1 text-2xl font-semibold text-slate-900">Match Result</h1>
+                <p class="mt-1 text-sm text-slate-600">Review winner details and share this game with a friend.</p>
+            </div>
+        </div>
     </div>
     <game-winner></game-winner>
 </body>

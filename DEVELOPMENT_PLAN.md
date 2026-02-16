@@ -1,5 +1,11 @@
 # Development Plan: GeoGuessr Clone
 
+## Document Navigation
+
+- Final examiner documentation: `PROJECT_DOCUMENTATION.md`
+- Practical setup/run instructions: `README.md`
+- This document: iterative planning and agile process support
+
 ## Project Overview
 
 A web application where users can challenge each other in a geography guessing game. Players are shown street-level imagery from Mapillary and must guess the location on a map. Each game session generates a unique shareable link, allowing friends to compete on the same set of locations.

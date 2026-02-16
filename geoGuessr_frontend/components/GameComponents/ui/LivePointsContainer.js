@@ -22,17 +22,10 @@ class LivePointsContainer extends HTMLElement {
      */
     connectedCallback() {
         this.innerHTML = `
-    <section class="mx-auto mt-8 w-full max-w-7xl px-6 lg:px-8">
-        <div class="live-points rounded-2xl border border-gray-200 bg-white px-5 py-4 shadow-sm">
-            <div class="flex items-center justify-between">
-                <div>
-                    <p class="text-xs font-semibold uppercase tracking-wider text-gray-500">Live Points</p>
-                    <h2 class="text-sm font-medium text-gray-700">Current score</h2>
-                </div>
-                <p id="points" class="text-3xl font-extrabold text-gray-900 tabular-nums sm:text-4xl">${this.points}</p>
-            </div>
+        <div class="inline-flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-3 py-1.5">
+            <p class="text-[11px] font-semibold uppercase tracking-wide text-slate-500">Score</p>
+            <p id="points" class="text-lg font-extrabold text-teal-700 tabular-nums">${this.points}</p>
         </div>
-    </section>
     `;
     }
 

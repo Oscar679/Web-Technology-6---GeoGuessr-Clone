@@ -66,6 +66,12 @@ class Game {
      */
     updateRound() {
         this.round += 1;
+        document.dispatchEvent(new CustomEvent("game-round-changed", {
+            detail: {
+                currentRound: Math.min(this.round + 1, 5),
+                totalRounds: 5
+            }
+        }));
         if (this.round == 5) {
             this.completeGame();
             return;

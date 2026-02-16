@@ -17,38 +17,38 @@ class LogInContainer extends HTMLElement {
     this.innerHTML = `
 <div class="flex min-h-full flex-col justify-center px-6 py-12 lg:px-8 mt-20">
   <div class="sm:mx-auto sm:w-full sm:max-w-sm">
-    <img src="https://tailwindcss.com/plus-assets/img/logos/mark.svg?color=indigo&shade=600" alt="Your Company" class="mx-auto h-10 w-auto" />
-    <h2 class="mt-10 text-center text-2xl/9 font-bold tracking-tight text-gray-900">Sign in to your account</h2>
+    <div class="mx-auto flex h-11 w-11 items-center justify-center rounded-full bg-teal-100 text-teal-700">G</div>
+    <h2 class="mt-6 text-center text-3xl font-bold tracking-tight text-slate-900">Sign in to your account</h2>
   </div>
 
-  <div class="mt-10 sm:mx-auto sm:w-full sm:max-w-sm">
+  <div class="app-panel mt-10 rounded-2xl px-6 py-6 sm:mx-auto sm:w-full sm:max-w-sm">
     <form action="#" method="POST" class="space-y-6">
       <div>
-        <label for="email" class="block text-sm/6 font-medium text-gray-900">Username</label>
+        <label for="email" class="block text-sm/6 font-medium text-slate-800">Username</label>
         <div class="mt-2">
-          <input id="username" type="username" name="username" required autocomplete="username" class="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6" />
+          <input id="username" type="username" name="username" required autocomplete="username" class="block w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-base text-slate-900 placeholder:text-slate-400 focus:border-teal-700 focus:ring-2 focus:ring-teal-700/20 focus:outline-none sm:text-sm/6" />
         </div>
       </div>
 
       <div>
         <div class="flex items-center justify-between">
-          <label for="password" class="block text-sm/6 font-medium text-gray-900">Password</label>
+          <label for="password" class="block text-sm/6 font-medium text-slate-800">Password</label>
         </div>
         <div class="mt-2">
-          <input id="password" type="password" name="password" required autocomplete="current-password" class="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6" />
+          <input id="password" type="password" name="password" required autocomplete="current-password" class="block w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-base text-slate-900 placeholder:text-slate-400 focus:border-teal-700 focus:ring-2 focus:ring-teal-700/20 focus:outline-none sm:text-sm/6" />
         </div>
       </div>
 
       <div>
-        <button id="submit" type="submit" class="flex w-full justify-center rounded-md bg-indigo-600 px-3 py-1.5 text-sm/6 font-semibold text-white shadow-xs hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 cursor-pointer">Log in</button>
+        <button id="submit" type="submit" class="flex w-full justify-center rounded-md bg-teal-700 px-3 py-2 text-sm/6 font-semibold text-white shadow-sm hover:bg-teal-600 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-700 cursor-pointer">Log in</button>
     </div>
     </form>
 
-    <p data-status class="mt-4 text-center text-sm text-gray-600"></p>
+    <p data-status class="mt-4 text-center text-sm text-slate-600"></p>
 
-    <p class="mt-10 text-center text-sm/6 text-gray-500">
+    <p class="mt-8 text-center text-sm/6 text-slate-600">
       Not a member?
-      <a href="signUp.html" class="font-semibold text-indigo-600 hover:text-indigo-500">Sign up</a>
+      <a href="signUp.html" class="font-semibold text-teal-700 hover:text-teal-600">Sign up</a>
     </p>
   </div>
 </div>

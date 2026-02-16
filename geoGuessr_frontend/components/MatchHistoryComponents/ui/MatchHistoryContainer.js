@@ -14,23 +14,25 @@ class MatchHistoryContainer extends HTMLElement {
      */
     connectedCallback() {
         this.innerHTML = `
-            <div class="bg-gray-100 min-h-screen py-16">
+            <div class="min-h-screen py-16">
                 <div class="mx-auto max-w-4xl px-6">
                     <div class="flex items-center justify-between gap-4">
                         <div>
-                            <h1 class="text-2xl font-semibold text-gray-900">Match History</h1>
-                            <p class="text-sm text-gray-600">Your recent games</p>
+                            <h1 class="text-2xl font-semibold text-slate-900">Match History</h1>
+                            <p class="text-sm text-slate-600">Your recent games</p>
                         </div>
-                        <a class="text-sm font-medium text-green-700 hover:text-green-600" href="index.html">Back to home</a>
+                        <a class="text-sm font-medium text-teal-700 hover:text-teal-600" href="index.html">Back to home</a>
                     </div>
 
-                    <div class="mt-8 rounded-xl bg-white shadow-lg">
-                        <div class="border-b border-gray-200 px-6 py-4 text-sm font-medium text-gray-700">
-                            Games
+                    <div class="app-panel mt-8 overflow-hidden rounded-2xl">
+                        <div class="border-b border-slate-200 bg-gradient-to-r from-teal-50 to-cyan-50 px-6 py-5">
+                            <p class="text-xs font-semibold uppercase tracking-[0.16em] text-teal-700">History</p>
+                            <h2 class="mt-1 text-lg font-semibold text-slate-900">Recent Matches</h2>
+                            <p class="text-sm text-slate-600">Your latest completed and pending 1v1 games.</p>
                         </div>
                         <div class="p-6">
-                            <div data-summary class="mb-4 text-sm text-gray-700"></div>
-                            <div data-status class="text-sm text-gray-600">Loading matches...</div>
+                            <div data-summary class="mb-4 text-sm text-slate-700"></div>
+                            <div data-status class="text-sm text-slate-600">Loading matches...</div>
                             <div data-list class="hidden"></div>
                         </div>
                     </div>
@@ -69,11 +71,24 @@ class MatchHistoryContainer extends HTMLElement {
             }
 
             summary.innerHTML = `
-                <span class="font-medium">Record:</span>
-                <span class="text-green-700">${summaryData.wins}W</span>
-                <span class="text-gray-400">-</span>
-                <span class="text-red-700">${summaryData.losses}L</span>
-                <span class="ml-2 text-gray-500">(${summaryData.winPct}% win)</span>
+                <div class="grid gap-2 sm:grid-cols-4">
+                    <div class="rounded-lg border border-slate-200 bg-white/80 px-3 py-2">
+                        <p class="text-xs uppercase tracking-wide text-slate-500">Wins</p>
+                        <p class="text-base font-semibold text-green-700">${summaryData.wins}</p>
+                    </div>
+                    <div class="rounded-lg border border-slate-200 bg-white/80 px-3 py-2">
+                        <p class="text-xs uppercase tracking-wide text-slate-500">Losses</p>
+                        <p class="text-base font-semibold text-red-700">${summaryData.losses}</p>
+                    </div>
+                    <div class="rounded-lg border border-slate-200 bg-white/80 px-3 py-2">
+                        <p class="text-xs uppercase tracking-wide text-slate-500">Ties</p>
+                        <p class="text-base font-semibold text-slate-700">${summaryData.ties}</p>
+                    </div>
+                    <div class="rounded-lg border border-slate-200 bg-white/80 px-3 py-2">
+                        <p class="text-xs uppercase tracking-wide text-slate-500">Win Rate</p>
+                        <p class="text-base font-semibold text-teal-700">${summaryData.winPct}%</p>
+                    </div>
+                </div>
             `;
 
             status.classList.add("hidden");
@@ -82,32 +97,50 @@ class MatchHistoryContainer extends HTMLElement {
                 <div class="overflow-x-auto">
                     <table class="min-w-full text-sm">
                         <thead>
-                            <tr class="text-left text-gray-500">
+                            <tr class="text-left text-slate-500">
+                                <th class="py-2 pr-4">Result</th>
                                 <th class="py-2 pr-4">Game ID</th>
                                 <th class="py-2 pr-4">Score</th>
                                 <th class="py-2 pr-4">Opponent</th>
                                 <th class="py-2 pr-4">Completed</th>
                             </tr>
                         </thead>
-                        <tbody class="text-gray-800">
+                        <tbody class="text-slate-800">
                             ${games.map((row) => {
                 const completedAt = new Date(row.completed_at);
                 const diffMs = Date.now() - completedAt.getTime();
                 const minutesAgo = Math.max(0, Math.floor(diffMs / 60000));
                 const hoursAgo = Math.floor(minutesAgo / 60);
-                const timeLabel = hoursAgo >= 1 ? `${hoursAgo}h ago` : `${minutesAgo}m ago`;
+                const daysAgo = Math.floor(hoursAgo / 24);
+                let timeLabel = `${minutesAgo}m ago`;
+                if (hoursAgo >= 24) {
+                    timeLabel = daysAgo === 1 ? "1 day ago" : `${daysAgo} days ago`;
+                } else if (hoursAgo >= 1) {
+                    timeLabel = `${hoursAgo}h ago`;
+                }
                 let outcomeClass = "bg-white";
+                let outcomeLabel = "Pending";
+                let outcomeBadgeClass = "bg-slate-100 text-slate-700";
                 if (row.opponent_score !== null && row.opponent_score !== undefined) {
                     if (row.score < row.opponent_score) {
                         outcomeClass = "bg-green-50";
+                        outcomeLabel = "W";
+                        outcomeBadgeClass = "bg-green-100 text-green-800";
                     } else if (row.score > row.opponent_score) {
                         outcomeClass = "bg-red-50";
+                        outcomeLabel = "L";
+                        outcomeBadgeClass = "bg-red-100 text-red-800";
                     } else {
-                        outcomeClass = "bg-gray-50";
+                        outcomeClass = "bg-slate-50";
+                        outcomeLabel = "T";
+                        outcomeBadgeClass = "bg-slate-200 text-slate-700";
                     }
                 }
                 return `
-                                <tr class="border-t border-gray-100 ${outcomeClass}">
+                                <tr class="border-t border-slate-100 ${outcomeClass}">
+                                    <td class="py-2 pr-4">
+                                        <span class="inline-flex min-w-7 items-center justify-center rounded-md px-2 py-0.5 text-xs font-semibold ${outcomeBadgeClass}">${outcomeLabel}</span>
+                                    </td>
                                     <td class="py-2 pr-4 font-mono text-xs">${row.game_id}</td>
                                     <td class="py-2 pr-4">${row.score}</td>
                                     <td class="py-2 pr-4">${row.opponent_name ?? "Waiting"}</td>

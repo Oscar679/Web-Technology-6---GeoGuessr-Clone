@@ -4,16 +4,19 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script type="module" src="./components/ui/NavBar.js"></script>
+    <script type="module" src="./components/ui/PageLoader.js"></script>
     <script type="module" src="./components/GameComponents/ui/GameContainer.js"></script>
 <script type="module" src="./components/GameComponents/ui/LivePointsContainer.js"></script>
     <link rel="stylesheet" href="./src/index.css">
-    <title>Document</title>
+    <title>Play Game</title>
 </head>
 
-<body>
+<body class="h-screen overflow-hidden">
+    <page-loader></page-loader>
     <nav-bar></nav-bar>
-    <live-points></live-points>
-    <game-container></game-container>
+    <main class="h-[calc(100vh-4rem)] overflow-hidden">
+        <game-container class="block h-full"></game-container>
+    </main>
 </body>
 
 </html>

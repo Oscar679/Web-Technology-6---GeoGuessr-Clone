@@ -1,9 +1,145 @@
+@import url("https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap");
 @import "tailwindcss";
 
+:root {
+    --bg-1: #f8fafc;
+    --bg-2: #e2e8f0;
+    --ink: #0f172a;
+    --ink-soft: #334155;
+    --line: rgba(15, 23, 42, 0.12);
+    --card: rgba(255, 255, 255, 0.8);
+    --brand: #0f766e;
+    --brand-strong: #115e59;
+}
+
+html,
 body {
-    background-color: rgb(229, 231, 235);
+    min-height: 100%;
+}
+
+body {
+    font-family: "Space Grotesk", "Segoe UI", Tahoma, sans-serif;
+    color: var(--ink);
+    background:
+        radial-gradient(circle at 10% -10%, #bae6fd 0%, transparent 45%),
+        radial-gradient(circle at 90% 110%, #a7f3d0 0%, transparent 38%),
+        linear-gradient(150deg, var(--bg-1), var(--bg-2));
+}
+
+body::before,
+body::after {
+    content: "";
+    position: fixed;
+    z-index: -1;
+    border-radius: 9999px;
+    filter: blur(40px);
+    opacity: 0.45;
+    pointer-events: none;
+}
+
+body::before {
+    width: 320px;
+    height: 320px;
+    top: 10%;
+    left: -80px;
+    background: #38bdf8;
+}
+
+body::after {
+    width: 300px;
+    height: 300px;
+    right: -90px;
+    bottom: 8%;
+    background: #34d399;
 }
 
 .index-page {
-   overflow: hidden;
+    overflow: hidden;
+}
+
+.app-panel {
+    border: 1px solid var(--line);
+    background: var(--card);
+    backdrop-filter: blur(8px);
+    box-shadow: 0 20px 40px rgba(15, 23, 42, 0.08);
+}
+
+.page-loader {
+    opacity: 1;
+    visibility: visible;
+    transition: opacity 500ms ease, visibility 500ms ease;
+    background: rgba(241, 245, 249, 0.9);
+    backdrop-filter: blur(2px);
+}
+
+.page-loader.is-hidden {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+}
+
+.loader {
+    width: 40px;
+    aspect-ratio: 1;
+    border-radius: 50%;
+    background: #0f766e;
+    clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%);
+    animation: l1 2s infinite cubic-bezier(0.3, 1, 0, 1);
+    transition: opacity 3000ms ease, visibility 3000ms ease;
+}
+
+.loader-label {
+    position: fixed;
+    left: 50%;
+    top: calc(50% + 42px);
+    transform: translateX(-50%);
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: #0f766e;
+    letter-spacing: 0.01em;
+    white-space: nowrap;
+}
+
+@keyframes l1 {
+    33% {
+        border-radius: 0;
+        background: #0d9488;
+        clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%);
+    }
+
+    66% {
+        border-radius: 0;
+        background: #14b8a6;
+        clip-path: polygon(50% 0, 50% 0, 100% 100%, 0 100%);
+    }
+}
+
+@keyframes fadeUp {
+    from {
+        opacity: 0;
+        transform: translateY(8px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.fade-in-up {
+    animation: fadeUp 420ms ease both;
+}
+
+.fade-in-delay-1 {
+    animation-delay: 90ms;
+}
+
+.fade-in-delay-2 {
+    animation-delay: 170ms;
+}
+
+.play-card {
+    position: relative;
+    border: 1px solid rgba(255, 255, 255, 0.7);
+    background: linear-gradient(165deg, rgba(255, 255, 255, 0.92), rgba(240, 253, 250, 0.78));
+    box-shadow: 0 16px 34px rgba(15, 23, 42, 0.1);
 }

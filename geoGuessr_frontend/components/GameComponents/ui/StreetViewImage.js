@@ -20,6 +20,42 @@ class StreetViewImage extends HTMLElement {
     this.swiper;
     this._initialized = false;
   }
+
+  /**
+   * Emits event to show global page loader.
+   * @returns {void}
+   */
+  showLoader(message = "Loading...") {
+    document.dispatchEvent(new CustomEvent("app-loader:show", {
+      detail: { message }
+    }));
+  }
+
+  /**
+   * Emits event to hide global page loader.
+   * @returns {void}
+   */
+  hideLoader() {
+    document.dispatchEvent(new CustomEvent("app-loader:hide"));
+  }
+
+  /**
+   * Waits until an image element is loaded (or errored).
+   * @param {HTMLImageElement | null} imageElement
+   * @returns {Promise<void>}
+   */
+  waitForImage(imageElement) {
+    return new Promise((resolve) => {
+      if (!imageElement || imageElement.complete) {
+        resolve();
+        return;
+      }
+
+      const done = () => resolve();
+      imageElement.addEventListener("load", done, { once: true });
+      imageElement.addEventListener("error", done, { once: true });
+    });
+  }
   /**
    * Runs when the custom element is attached to the DOM.
    * @returns {Promise<*>}
@@ -35,6 +71,7 @@ class StreetViewImage extends HTMLElement {
       return;
     }
     const gameService = new GameService();
+    this.showLoader("Preparing challenge...");
     try {
       const params = new URLSearchParams(window.location.search);
       const existingGameId = params.get("gameId");
@@ -49,12 +86,15 @@ class StreetViewImage extends HTMLElement {
       }
 
       this.images = data.images;
+      document.dispatchEvent(new CustomEvent("app-loader:message", {
+        detail: { message: "Loading first street-view image..." }
+      }));
       this.innerHTML = `
               <div class="swiper w-full h-full rounded-xl">
                 <div class="swiper-wrapper">
                  ${this.images.map(img => `
                   <div class="swiper-slide">
-                    <div class="overflow-hidden rounded-xl shadow-md bg-neutral-900 h-full">
+                    <div class="overflow-hidden rounded-xl shadow-md h-full">
                       <img 
                         src="${img.imageUrl}" 
                         alt="Street View Image"
@@ -67,7 +107,12 @@ class StreetViewImage extends HTMLElement {
               </div>
             `;
 
-      this.swiper = new Swiper(this.querySelector('.swiper'));
+      this.swiper = new Swiper(this.querySelector('.swiper'), {
+        allowTouchMove: false
+      });
+
+      const firstImage = this.querySelector(".swiper-slide:first-child img");
+      await this.waitForImage(firstImage);
 
       const coordinates = this.images.map(img => ({
         lat: img.lat,
@@ -83,6 +128,8 @@ class StreetViewImage extends HTMLElement {
 
     } catch (err) {
       console.error("Error:", err);
+    } finally {
+      this.hideLoader();
     }
   }
 
@@ -91,6 +138,18 @@ class StreetViewImage extends HTMLElement {
    * @returns {void}
    */
   nextImage() {
+    if (!this.swiper) {
+      return;
+    }
+
+    this.swiper.once("slideChangeTransitionEnd", async () => {
+      const activeImage = this.querySelector(".swiper-slide-active img");
+      if (activeImage && !activeImage.complete) {
+        this.showLoader("Loading next image...");
+        await this.waitForImage(activeImage);
+        this.hideLoader();
+      }
+    });
     this.swiper.slideNext();
   }
 }
