@@ -2,7 +2,6 @@
 
 ## Document Navigation
 
-- Final examiner documentation: `PROJECT_DOCUMENTATION.md`
 - Practical setup/run instructions: `README.md`
 - This document: iterative planning and agile process support
 

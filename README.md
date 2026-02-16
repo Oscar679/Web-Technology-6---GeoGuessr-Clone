@@ -1,31 +1,30 @@
-# GeoGuessr 1ME326 - Fullstackprojekt
+# GeoGuessr 1ME326 - Fullstack Project
 
-Detta repo innehaller en fullstack-webbapplikation dar anvandare utmanar varandra i ett geolokaliseringsspel baserat pa gatubilder.
+This repository contains a fullstack web application where users challenge each other in a geolocation game based on street-level images.
 
-## Projektstruktur
+## Project Structure
 
-- `geoGuessr_frontend/` - klient (Web Components + Vite + Tailwind)
+- `geoGuessr_frontend/` - client (Web Components + Vite + Tailwind)
 - `geoGuessr_backend/` - API (PHP + Slim 4 + PDO + JWT)
-- `DEVELOPMENT_PLAN.md` - iterativ plan och processunderlag
-- `PROJECT_DOCUMENTATION.md` - slutlig dokumentation for examination
+- `DEVELOPMENT_PLAN.md` - iterative planning and process evidence
 
-## Kort funktionell oversikt
+## Functional Overview
 
-- Starta ny spelomgang (5 rundor)
-- Dela unik lank till exakt samma spelomgang
-- Spara resultat i databas
-- Visa matchresultat efter avslutad omgang
-- Forhindra att samma anvandare spelar samma omgang flera ganger
-- Inloggning/registrering med JWT
-- Matchhistorik och global leaderboard
+- Start a new game session (5 rounds)
+- Share a unique link to the exact same game session
+- Save results in the database
+- Show match results after completion
+- Prevent the same user from playing the same session more than once
+- Login/registration with JWT
+- Match history and global leaderboard
 
-## Tekniskt
+## Tech Stack
 
 - Backend: PHP, Slim 4, PDO, MySQL, php-jwt
-- Frontend: Vanilla ES-moduler, Web Components, Tailwind CSS, Vite
-- Externa API: Mapillary (bilder), OpenStreetMap/Leaflet (karta)
+- Frontend: Vanilla ES modules, Web Components, Tailwind CSS, Vite
+- External APIs: Mapillary (images), OpenStreetMap/Leaflet (map)
 
-## Lokal korning
+## Local Run
 
 ### Frontend
 
@@ -35,7 +34,7 @@ npm install
 npm run dev
 ```
 
-Bygg for produktion:
+Build for production:
 
 ```bash
 npm run build
@@ -43,25 +42,25 @@ npm run build
 
 ### Backend
 
-1. Konfigurera `.env` i `geoGuessr_backend/` (DB, JWT, Mapillary).
-2. Se till att `vendor/` finns (Composer dependencies installerade).
-3. Rikta webbserverns document root mot `geoGuessr_backend/public`.
+1. Configure `.env` in `geoGuessr_backend/` (DB, JWT, Mapillary).
+2. Ensure `vendor/` exists (Composer dependencies installed).
+3. Point web server document root to `geoGuessr_backend/public`.
 
-## Miljovariabler (frontend)
+## Environment Variables (frontend)
 
-- `VITE_API_BASE_URL` - bas-URL till backend API
-- `VITE_APP_BASE_PATH` - bas-path for deployad frontend
+- `VITE_API_BASE_URL` - base URL for backend API
+- `VITE_APP_BASE_PATH` - base path for deployed frontend
 
-## API-endpoints (sammanfattning)
+## API Endpoints (Summary)
 
-Publika:
+Public:
 
 - `GET /api/health`
 - `POST /api/login`
 - `POST /api/register`
 - `GET /api/leaderboard`
 
-Skyddade (Bearer JWT):
+Protected (Bearer JWT):
 
 - `PUT /api/startgame`
 - `GET /api/games/{gameId}`
@@ -71,22 +70,22 @@ Skyddade (Bearer JWT):
 
 ## Deployment (melab)
 
-1. Bygg frontend (`npm run build`).
-2. Publicera frontendfiler till melab-path for klienten.
-3. Publicera backend med fungerande `.htaccess` och `public/index.php`.
-4. Verifiera:
-   - inloggning
-   - start av spel
-   - delningslank
-   - resultatsparning
-   - matchhistorik
+1. Build frontend (`npm run build`).
+2. Publish frontend files to your melab client path.
+3. Publish backend with working `.htaccess` and `public/index.php`.
+4. Verify:
+   - login
+   - game start
+   - share link flow
+   - result saving
+   - match history
 
-## Testchecklista innan inlamning
+## Pre-Submission Test Checklist
 
-- Ny anvandare kan registrera sig och logga in
-- Spel kan startas och 5 rundor kan spelas
-- Delad lank oppnas av annan anvandare och ger samma spel
-- Resultat sparas och visas
-- Samma anvandare kan inte spela samma gameId igen
-- Matchhistorik fungerar
-- UI fungerar pa desktop och mobil
+- A new user can register and log in
+- A game can start and all 5 rounds can be completed
+- Shared link opens for another user and loads the same game
+- Results are saved and shown
+- Same user cannot replay the same `gameId`
+- Match history works
+- UI works on desktop and mobile
