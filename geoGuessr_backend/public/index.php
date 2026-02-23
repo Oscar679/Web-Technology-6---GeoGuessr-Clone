@@ -98,7 +98,7 @@ $authMiddleware = function (Request $request, $handler) use ($container) {
 $app->group('/api', function ($group) use ($json) {
 
     // Start game
-    $group->put('/startgame', function (Request $request, Response $response) use ($json) {
+    $group->post('/startgame', function (Request $request, Response $response) use ($json) {
         $user = $request->getAttribute('user');
 
         /** @var GameService $gameService */

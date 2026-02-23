@@ -15,7 +15,7 @@ class GameService extends Service {
         const response = await fetch(
             this.buildUrl("/api/startgame"),
             {
-                method: "PUT",
+                method: "POST",
                 headers: {
                     "Authorization": `Bearer ${token}`,
                     "Content-Type": "application/json"
