@@ -178,12 +178,8 @@ class GameContainer extends HTMLElement {
 
   /** Cleans up global listeners to avoid duplicate handlers on remount. */
   disconnectedCallback() {
-    if (this.onGameError) {
-      document.removeEventListener("game-error", this.onGameError);
-    }
-    if (this.onRoundChanged) {
-      document.removeEventListener("game-round-changed", this.onRoundChanged);
-    }
+    document.removeEventListener("game-error", this.onGameError);
+    document.removeEventListener("game-round-changed", this.onRoundChanged);
   }
 }
 

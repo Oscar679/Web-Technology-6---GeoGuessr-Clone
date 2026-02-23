@@ -2,8 +2,6 @@
  * @file components/GameComponents/ui/LivePointsContainer.js
  * @description LivePointsContainer module.
  */
-import LivePoints from "../logic/LivePoints";
-
 /**
  * Represents the LivePointsContainer module and encapsulates its behavior.
  */
@@ -35,10 +33,9 @@ class LivePointsContainer extends HTMLElement {
      * @returns {void}
      */
     updatePoints(points) {
-        const logic = new LivePoints();
         const pointsElement = this.querySelector('#points');
         if (pointsElement) {
-            this.points = logic.updatePoints(points);
+            this.points = Math.round(points);
             pointsElement.textContent = this.points;
         }
     }

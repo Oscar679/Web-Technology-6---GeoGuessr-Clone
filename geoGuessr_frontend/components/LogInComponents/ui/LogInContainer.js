@@ -24,7 +24,7 @@ class LogInContainer extends HTMLElement {
   <div class="app-panel mt-10 rounded-2xl px-6 py-6 sm:mx-auto sm:w-full sm:max-w-sm">
     <form action="#" method="POST" class="space-y-6">
       <div>
-        <label for="email" class="block text-sm/6 font-medium text-slate-800">Username</label>
+        <label for="username" class="block text-sm/6 font-medium text-slate-800">Username</label>
         <div class="mt-2">
           <input id="username" type="username" name="username" required autocomplete="username" class="block w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-base text-slate-900 placeholder:text-slate-400 focus:border-teal-700 focus:ring-2 focus:ring-teal-700/20 focus:outline-none sm:text-sm/6" />
         </div>
@@ -58,8 +58,6 @@ class LogInContainer extends HTMLElement {
     this.username = this.querySelector('#username');
     this.password = this.querySelector('#password');
     this.button = this.querySelector('#submit');
-
-    this.button.innerHTML = 'Log in';
 
     this.status = this.querySelector('[data-status]');
 

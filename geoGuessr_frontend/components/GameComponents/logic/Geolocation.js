@@ -2,11 +2,6 @@
  * Utility methods for geographic calculations.
  */
 class Geolocation {
-    constructor(lat, lng) {
-        this.lat = lat;
-        this.lng = lng;
-    }
-
     /**
      * Returns great-circle distance in kilometers between answer and guess.
      */

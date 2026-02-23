@@ -16,7 +16,8 @@ require __DIR__ . '/../vendor/autoload.php';
 | ENV
 |--------------------------------------------------------------------------
 */
-$dotenv = Dotenv::createImmutable(__DIR__ . '/..');
+$envFile = file_exists(__DIR__ . '/../.env.local') ? '.env.local' : '.env';
+$dotenv = Dotenv::createImmutable(__DIR__ . '/..', $envFile);
 $dotenv->load();
 
 // Keep verbose errors local-only; production should not expose internals.
@@ -179,10 +180,6 @@ $app->get('/', function (Request $request, Response $response) {
     return $response;
 });
 
-$app->get('/api/health', function (Request $request, Response $response) {
-    $response->getBody()->write('API HEALTHY');
-    return $response;
-});
 
 $app->post('/api/login', function (Request $request, Response $response) use ($json) {
     $data = json_decode($request->getBody()->getContents(), true);

@@ -15,9 +15,9 @@ export default defineConfig(({ mode }) => {
     server: {
       proxy: {
         '/backend': {
-          target: 'http://127.0.0.1/oe222ia/geoguessr_backend',
+          target: 'http://127.0.0.1',
           changeOrigin: true,
-          rewrite: (path) => path.replace(/^\/backend/, ''),
+          rewrite: (path) => path.replace(/^\/backend/, '/oe222ia/geoguessr_backend'),
         },
       },
     },

@@ -55,14 +55,13 @@ npm run build
 
 Public:
 
-- `GET /api/health`
 - `POST /api/login`
 - `POST /api/register`
 - `GET /api/leaderboard`
 
 Protected (Bearer JWT):
 
-- `PUT /api/startgame`
+- `POST /api/startgame`
 - `GET /api/games/{gameId}`
 - `POST /api/games/{gameId}/result`
 - `GET /api/games/{gameId}/results`

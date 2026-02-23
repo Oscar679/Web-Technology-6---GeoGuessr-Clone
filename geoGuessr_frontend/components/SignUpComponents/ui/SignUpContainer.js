@@ -57,8 +57,6 @@ class SignUpContainer extends HTMLElement {
     this.button = this.querySelector('#submit');
     this.status = this.querySelector('[data-status]');
 
-    this.button.innerHTML = 'Sign up';
-
     this.form.addEventListener("submit", async (event) => {
       event.preventDefault();
       const signUp = SignUp.getInstance();
