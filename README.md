@@ -327,6 +327,8 @@ Det som gick bäst i projektet var den iterativa utvecklingen. Genom att hålla 
 
 Den största tekniska utmaningen var integrationen mot externa data. Mapillary gav inte alltid jämnt resultat beroende på område, så spelinnehållet behövde genereras från utvalda geografiska platser där täckningen var bättre. En annan utmaning var att hålla spelreglerna konsekventa, särskilt att samma användare inte ska kunna spela samma länk flera gånger och att en match bara ska acceptera två spelare.
 
+En kvarstående begränsning i projektet är laddningstiden när fem Mapillary-bilder ska hämtas inför en ny spelomgång. Jag har ännu inte hittat en riktigt bra lösning på hur detta ska optimeras utan att samtidigt göra implementationen betydligt mer komplex, till exempel genom aggressiv caching, förgenererade rundor eller parallell hämtning med mer avancerad felhantering. Det är därför en tydlig förbättringspunkt om projektet skulle utvecklas vidare.
+
 Om jag skulle göra om projektet hade jag lagt mer tid tidigt på dokumenterad databasdesign och teststrategi. Jag hade också infört striktare kvalitetskontroller tidigare, till exempel linting och tydligare gemensamma hjälpfunktioner i frontend, eftersom flera buggar i efterhand visade sig bero på duplicerad logik.
 
 AI påverkade arbetssättet tydligt. Jag kunde arbeta snabbare och ta mig an fler delar av applikationen, men det flyttade också fokus från att skriva varje rad själv till att granska, förstå och förbättra kodförslag. Det gjorde kvalitetsgranskning viktigare än i mindre projekt utan AI.
