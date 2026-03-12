@@ -1,10 +1,12 @@
-﻿# Fullstackprojekt 1ME326 – GeoGuessr-inspirerat utmaningsspel
+﻿# Fullstackprojekt 1ME326 – Rapport för GeoGuessr-inspirerat utmaningsspel
 
 ## Projektöversikt
 
 Detta projekt är en fullstack-webbapplikation där användare kan utmana varandra i ett geografiskt gissningsspel. En spelare startar en spelomgång, spelar fem rundor och får därefter en unik länk till exakt samma omgång. Länken kan delas med en vän som då spelar med samma bilder och samma förutsättningar. När båda spelarna har genomfört omgången visas en resultatlista där resultaten kan jämföras.
 
-Spelet bygger på gatubilder från ett externt API och kartinteraktion i webbläsaren. Resultatet beräknas som summan av avståndet mellan spelarens gissning och den verkliga platsen. Lägre poäng är bättre.
+Spelet bygger på gatubilder från ett externt API och kartinteraktion i webbläsaren. Resultatet beräknas som summan av avståndet mellan spelarens gissning och den verkliga platsen. Lägre poäng är bättre. I den nuvarande implementationen är varje spelomgång begränsad till två spelare, och resultatet sparas i praktiken som ett heltalsvärde i kilometer.
+
+Syftet med denna rapport är att beskriva applikationens arkitektur, motivera de viktigaste tekniska valen, redovisa hur generativ AI har använts i projektet samt reflektera över arbetsprocessen och de lärdomar som uppstod under utvecklingen.
 
 Projektet uppfyller grundkraven i uppgiften:
 
@@ -13,7 +15,7 @@ Projektet uppfyller grundkraven i uppgiften:
 - varje spelomgång får en unik delbar länk
 - resultat sparas i databasen
 - en användare kan bara spela samma spelomgång en gång
-- resultatlista visas efter avslutad spelomgång
+- resultatlista för spelomgången visas efter avslutad spelomgång
 
 Projektet uppfyller också flera extrakrav:
 
@@ -22,9 +24,9 @@ Projektet uppfyller också flera extrakrav:
 - responsiv design för desktop och mobil
 - global leaderboard med rating
 
-## Arkitekturbeskrivning
+## 1. Arkitekturbeskrivning
 
-Applikationen är uppdelad i två huvuddelar: ett frontend-projekt i JavaScript och ett backend-projekt i PHP. Frontend körs i webbläsaren och ansvarar för presentation, användarinteraktion och kommunikation med API:t. Backend ansvarar för autentisering, spelgenerering, lagring av resultat och hämtning av statistik.
+Applikationen är uppdelad i två huvuddelar: ett frontend-projekt i JavaScript och ett backend-projekt i PHP. Frontend körs i webbläsaren och ansvarar för presentation, användarinteraktion och kommunikation med API:t. Backend ansvarar för autentisering, spelgenerering, lagring av resultat och hämtning av statistik. Arkitekturen är uppdelad i en tydlig klientdel och en tydlig serverdel för att göra systemet lättare att underhålla, felsöka och vidareutveckla.
 
 ### Övergripande struktur
 
@@ -103,7 +105,6 @@ classDiagram
     HTMLElement <|-- OpenStreetMap
     HTMLElement <|-- GameWinnerContainer
 
-    GameService --> Game
     Game --> Geolocation
     Game --> GameService
     StreetViewImage --> Game
@@ -144,7 +145,6 @@ classDiagram
     }
 
     GameService --> MapillaryService
-    AuthService --> UserService
 ```
 
 ### Flödesdiagram
@@ -181,9 +181,9 @@ Ett typiskt flöde när en användare startar en spelomgång ser ut så här:
 6. Frontend får tillbaka `gameId` och bilddata och renderar spelet.
 7. För varje runda placerar användaren en markör på kartan.
 8. Frontend räknar ut avståndet med Haversine-formeln och summerar spelarens totalpoäng.
-9. När alla rundor är klara skickas resultatet till `POST /api/games/{gameId}/result`.
+9. När alla rundor är klara skickas resultatet till `POST /api/games/{gameId}/result`, där backend sparar poängen som ett heltal.
 10. Backend sparar resultatet, kontrollerar att användaren inte redan spelat samma omgång och uppdaterar spelarstatistik.
-11. Resultatsidan hämtar topplistan via `GET /api/games/{gameId}/results`.
+11. Resultatsidan hämtar spelomgångens topplista via `GET /api/games/{gameId}/results`, som i nuvarande backend som standard returnerar upp till 10 resultat.
 
 ### Komponenter och ansvar
 
@@ -218,9 +218,9 @@ Förenklat innehåller databasen tabeller för:
 - `game_results`: en rad per spelares genomförda försök
 - `player_stats`: aggregerad statistik som vinster, matcher och rating
 
-Relationerna är relativt raka: en användare kan ha många resultat, en spelomgång kan ha upp till två resultat, och statistik sammanställs per användare.
+Relationerna är relativt raka: en användare kan ha många resultat, en spelomgång kan ha upp till två resultat, och statistik sammanställs per användare. Denna struktur gör det möjligt att separera rå speldata från sammanställd statistik, vilket förenklar både resultatsidor och leaderboard.
 
-## Teknikval och motiveringar
+## 2. Teknikval och motiveringar
 
 ### Backend: PHP med Slim 4
 
@@ -248,13 +248,15 @@ För spelinnehållet används Mapillary. Det uppfyller kravet på externt API oc
 
 ### Resultatmodell och rating
 
-Utöver den lokala resultatlistan för varje omgång lade jag till global statistik och en enkel ratingmodell. Den är inte en full Elo-implementation, men fungerar som långsiktig progression. Alternativet hade varit att bara spara råa matchresultat, men rating och historik gör applikationen mer spelbar över tid och uppfyller extrakraven bättre.
+Utöver resultatlistan för varje spelomgång lade jag till en global leaderboard och en enkel ratingmodell. Den är inte en full Elo-implementation, men fungerar som långsiktig progression. Alternativet hade varit att bara spara råa matchresultat, men rating och historik gör applikationen mer spelbar över tid och uppfyller extrakraven bättre.
 
 ### Felhantering och underhållbarhet
 
 Under projektet blev det tydligt att återanvändbar felhantering var viktig. Därför samlades frontendens fetch-logik i en gemensam tjänst för att minska duplicerad kod och få konsekventa felmeddelanden. På backend separerades logik i serviceklasser i stället för att lägga allt direkt i route handlers. Det gör projektet lättare att felsöka och vidareutveckla.
 
-## AI-användning
+Sammanfattningsvis gjordes teknikvalen med målet att hålla projektet tillräckligt enkelt för att vara begripligt, men samtidigt tillräckligt robust för att uppfylla uppgiftens krav på struktur, återanvändbarhet och deployment.
+
+## 3. AI-användning
 
 Jag använde generativa AI-verktyg aktivt i projektet, främst som stöd för implementation, felsökning och refaktorering. Verktygen användes inte som ersättning för förståelse, utan som ett sätt att snabbare komma fram till lösningar som sedan behövde granskas och anpassas.
 
@@ -290,7 +292,9 @@ Det som fungerade bäst var att använda AI för avgränsade delproblem, till ex
 
 Claude var särskilt användbart när jag ville arbeta snabbt i flera små iterationer: först få fram ett fungerande förslag, sedan granska det, testa det och be om en mindre förbättring i nästa steg. Det passade bra ihop med ett agilt arbetssätt där applikationen skulle vara körbar under hela utvecklingsperioden.
 
-## Reflektioner och lärdomar
+Sammanfattningsvis var AI mest värdefullt när det användes som ett verktyg för iteration och analys, inte som en källa till färdiga sanningar. Det krävdes fortfarande att jag själv förstod koden, bedömde rimligheten i lösningarna och anpassade dem till projektets faktiska struktur.
+
+## 4. Reflektioner och lärdomar
 
 Det som gick bäst i projektet var den iterativa utvecklingen. Genom att hålla projektet körbart under hela processen blev det enklare att testa nya delar utan att allt annat föll sönder. Kombinationen av en liten backendstruktur och komponentbaserad frontend gjorde också att det gick att lägga till funktioner stegvis.
 
@@ -299,6 +303,8 @@ Den största tekniska utmaningen var integrationen mot externa data. Mapillary g
 Om jag skulle göra om projektet hade jag lagt mer tid tidigt på dokumenterad databasdesign och teststrategi. Jag hade också infört striktare kvalitetskontroller tidigare, till exempel linting och tydligare gemensamma hjälpfunktioner i frontend, eftersom flera buggar i efterhand visade sig bero på duplicerad logik.
 
 AI påverkade arbetssättet tydligt. Jag kunde arbeta snabbare och ta mig an fler delar av applikationen, men det flyttade också fokus från att skriva varje rad själv till att granska, förstå och förbättra kodförslag. Det gjorde kvalitetsgranskning viktigare än i mindre projekt utan AI.
+
+Sammantaget visar projektet att generativ AI kan vara ett starkt stöd i webbutveckling, men också att värdet i slutändan ligger i att kunna motivera arkitekturen, kvalitetssäkra implementationen och förstå varför systemet fungerar som det gör.
 
 ## Körning lokalt
 
