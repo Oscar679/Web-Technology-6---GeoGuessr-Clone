@@ -45,10 +45,12 @@ REST API (PHP + Slim 4)
 
 ### UML-diagram
 
+För att göra diagrammet läsbart visar jag här de viktigaste relationerna i stället för att lägga in varje enskild UI-komponent i samma figur. De flesta UI-komponenterna i frontend, till exempel `GameContainer`, `StreetViewImage`, `OpenStreetMap`, `GameWinnerContainer`, `LeaderboardContainer`, `MatchHistoryContainer`, `LogInContainer`, `SignUpContainer`, `NavBar`, `PageLoader` och `Index`, är Web Components och ärver från `HTMLElement`.
+
+#### Frontend
+
 ```mermaid
 classDiagram
-    class HTMLElement
-
     class Service {
         +buildUrl(path)
         +getAuthHeaders()
@@ -83,23 +85,40 @@ classDiagram
         +haversine(actualCoords, guessedCoords)
     }
 
+    class HTMLElement
     class GameContainer
     class StreetViewImage
     class OpenStreetMap
     class GameWinnerContainer
-    class LivePointsContainer
-    class MatchHistoryContainer
-    class LeaderboardContainer
-    class LogInContainer
-    class SignUpContainer
-    class NavBar
-    class PageLoader
-    class Index
     class MatchHistory
     class Leaderboard
     class LogIn
     class SignUp
 
+    Service <|-- FrontendUserService
+    Service <|-- FrontendGameService
+
+    HTMLElement <|-- GameContainer
+    HTMLElement <|-- StreetViewImage
+    HTMLElement <|-- OpenStreetMap
+    HTMLElement <|-- GameWinnerContainer
+
+    FrontendGameService --> Game
+    Game --> Geolocation
+    Game --> FrontendGameService
+    StreetViewImage --> Game
+    StreetViewImage --> FrontendGameService
+    GameWinnerContainer --> FrontendGameService
+    MatchHistory --> FrontendGameService
+    Leaderboard --> FrontendGameService
+    LogIn --> FrontendUserService
+    SignUp --> FrontendUserService
+```
+
+#### Backend
+
+```mermaid
+classDiagram
     class AuthService {
         +createToken(userId, name)
         +verifyToken(token)
@@ -123,37 +142,6 @@ classDiagram
     class MapillaryService {
         +getRandomImage(count)
     }
-
-    Service <|-- FrontendUserService
-    Service <|-- FrontendGameService
-
-    HTMLElement <|-- GameContainer
-    HTMLElement <|-- StreetViewImage
-    HTMLElement <|-- OpenStreetMap
-    HTMLElement <|-- GameWinnerContainer
-    HTMLElement <|-- LivePointsContainer
-    HTMLElement <|-- MatchHistoryContainer
-    HTMLElement <|-- LeaderboardContainer
-    HTMLElement <|-- LogInContainer
-    HTMLElement <|-- SignUpContainer
-    HTMLElement <|-- NavBar
-    HTMLElement <|-- PageLoader
-    HTMLElement <|-- Index
-
-    FrontendGameService --> Game
-    Game --> Geolocation
-    Game --> FrontendGameService
-    StreetViewImage --> Game
-    StreetViewImage --> FrontendGameService
-    GameWinnerContainer --> FrontendGameService
-    MatchHistory --> FrontendGameService
-    Leaderboard --> FrontendGameService
-    LogIn --> FrontendUserService
-    SignUp --> FrontendUserService
-    MatchHistoryContainer --> MatchHistory
-    LeaderboardContainer --> Leaderboard
-    LogInContainer --> LogIn
-    SignUpContainer --> SignUp
 
     BackendGameService --> MapillaryService
     AuthService --> BackendUserService
