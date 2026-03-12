@@ -36,7 +36,8 @@ class Game {
      */
     submitGuess(guessedCoordinates) {
         if (this.round < 5) {
-            const distance = Geolocation.haversine(this.locations[this.round], guessedCoordinates);
+            const actualCoords = this.locations[this.round];
+            const distance = Geolocation.haversine(actualCoords, guessedCoordinates);
             // Lower score is better; each round adds distance error in kilometers.
             this.score += distance;
 
@@ -44,6 +45,10 @@ class Game {
             if (livePointsElement) {
                 livePointsElement.updatePoints(this.score);
             }
+
+            document.dispatchEvent(new CustomEvent("guess-result", {
+                detail: { guessCoords: guessedCoordinates, actualCoords, distance, isLastRound: this.round === 4 }
+            }));
 
             this.updateRound();
         } else {
@@ -75,7 +80,8 @@ class Game {
     }
 
     /**
-     * Persists final score and navigates to completion page.
+     * Persists final score and emits game-complete with the result URL.
+     * Navigation is deferred to the UI so the user can view the last result first.
      */
     completeGame() {
         this.gameService.saveResult(Game.instance)
@@ -84,7 +90,9 @@ class Game {
                 if (this.gameId) {
                     url.searchParams.set("gameId", this.gameId);
                 }
-                window.location.href = url.toString();
+                document.dispatchEvent(new CustomEvent("game-complete", {
+                    detail: { url: url.toString() }
+                }));
             })
             .catch(error => {
                 console.error("Error completing game:", error);

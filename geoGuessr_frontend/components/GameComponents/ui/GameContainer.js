@@ -125,8 +125,27 @@ class GameContainer extends HTMLElement {
       }
     };
 
+    this._awaitingNext = false;
+    this._completeUrl = null;
+    this._navigateOnComplete = false;
+
+    this.onGuessResult = (event) => {
+      const isLastRound = event?.detail?.isLastRound;
+      this.button.textContent = isLastRound ? "Show Results" : "Next Round";
+      this._awaitingNext = true;
+    };
+
+    this.onGameComplete = (event) => {
+      this._completeUrl = event?.detail?.url;
+      if (this._navigateOnComplete) {
+        window.location.href = this._completeUrl;
+      }
+    };
+
     document.addEventListener("game-error", this.onGameError);
     document.addEventListener("game-round-changed", this.onRoundChanged);
+    document.addEventListener("guess-result", this.onGuessResult);
+    document.addEventListener("game-complete", this.onGameComplete);
 
     // Copies generated share URL for inviting a second player.
     this.copyButton.addEventListener("click", async () => {
@@ -154,8 +173,27 @@ class GameContainer extends HTMLElement {
       this.shareInput.value = url.toString();
     });
 
-    // Validates guess, submits round, and advances to next image.
+    // Validates guess or advances to next round depending on current state.
     this.button.addEventListener("click", () => {
+      if (this._awaitingNext) {
+        // Last round: navigate to results (wait for save if still in progress).
+        if (this.button.textContent === "Show Results") {
+          if (this._completeUrl) {
+            window.location.href = this._completeUrl;
+          } else {
+            this._navigateOnComplete = true;
+            this.button.textContent = "Loading...";
+            this.button.disabled = true;
+          }
+          return;
+        }
+        this.map.resetForNextRound();
+        this.streetView.nextImage();
+        this.button.textContent = "Guess";
+        this._awaitingNext = false;
+        return;
+      }
+
       this.setStatus("");
       const guess = this.map.getGuess();
       if (!guess) {
@@ -172,7 +210,6 @@ class GameContainer extends HTMLElement {
       }
 
       game.submitGuess(guess);
-      this.streetView.nextImage();
     });
   }
 
@@ -180,6 +217,8 @@ class GameContainer extends HTMLElement {
   disconnectedCallback() {
     document.removeEventListener("game-error", this.onGameError);
     document.removeEventListener("game-round-changed", this.onRoundChanged);
+    document.removeEventListener("guess-result", this.onGuessResult);
+    document.removeEventListener("game-complete", this.onGameComplete);
   }
 }
 

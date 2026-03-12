@@ -1,5 +1,17 @@
 import GameService from "../../../api/GameService";
 
+/** Decodes the name claim from the stored JWT without a library. */
+function getOwnName() {
+    const token = localStorage.getItem("token");
+    if (!token) return "Player 1";
+    try {
+        const payload = JSON.parse(atob(token.split(".")[1]));
+        return payload.name || "Player 1";
+    } catch {
+        return "Player 1";
+    }
+}
+
 /**
  * Game completion view for 1v1 outcome + sharing controls.
  * Shows waiting state for opponent and hides share section after both have played.
@@ -97,7 +109,7 @@ class GameWinnerContainer extends HTMLElement {
         title.textContent = "Calculating result...";
         subtitle.textContent = "Fetching leaderboard for this game.";
         if (player1ScoreElement) {
-            player1ScoreElement.textContent = "Player 1: waiting...";
+            player1ScoreElement.textContent = `${getOwnName()}: waiting...`;
         }
         if (player2ScoreElement) {
             player2ScoreElement.textContent = "Player 2: waiting...";
