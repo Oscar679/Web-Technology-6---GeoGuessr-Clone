@@ -32,6 +32,34 @@ class Service {
 
         return `${this.apiBaseUrl}${normalizedPath}`;
     }
+
+    /** Returns a bearer token header when the user is authenticated. */
+    getAuthHeaders() {
+        const token = localStorage.getItem("token");
+        return token ? { Authorization: `Bearer ${token}` } : {};
+    }
+
+    /** Performs a JSON request and normalizes non-OK responses into Errors. */
+    async requestJson(path, options = {}) {
+        const response = await fetch(this.buildUrl(path), options);
+        let data = null;
+
+        try {
+            data = await response.json();
+        } catch {
+            // Non-JSON responses are allowed; callers still receive HTTP-based errors.
+        }
+
+        if (!response.ok) {
+            const message = data?.error || `HTTP ${response.status}`;
+            const error = new Error(message);
+            error.status = response.status;
+            error.payload = data;
+            throw error;
+        }
+
+        return data;
+    }
 }
 
 export default Service;

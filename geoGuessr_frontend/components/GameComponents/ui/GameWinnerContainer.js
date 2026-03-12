@@ -129,6 +129,15 @@ class GameWinnerContainer extends HTMLElement {
             }
 
             if (results.length === 1) {
+                const first = results[0];
+                const firstScore = Number(first.score);
+
+                if (player1ScoreElement) {
+                    player1ScoreElement.textContent = `${first.player_name}: ${Math.round(firstScore)} km`;
+                }
+                if (player2ScoreElement) {
+                    player2ScoreElement.textContent = "Player 2: waiting...";
+                }
                 title.textContent = "Round complete";
                 subtitle.textContent = "Waiting for an opponent to finish this game.";
                 return;

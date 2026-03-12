@@ -38,12 +38,22 @@ class LogIn {
      * @returns {Promise<*>}
      */
     async submit(name, password) {
-        const res = await this.userService.logIn(name, password);
-        if (res.token) {
-            localStorage.setItem("token", res.token);
-            return { ok: true };
+        const trimmedName = (name || "").trim();
+        const trimmedPassword = (password || "").trim();
+        if (!trimmedName || !trimmedPassword) {
+            return { ok: false, error: "Username and password required" };
         }
-        return { ok: false, error: res?.error || "Invalid credentials" };
+
+        try {
+            const res = await this.userService.logIn(trimmedName, trimmedPassword);
+            if (res.token) {
+                localStorage.setItem("token", res.token);
+                return { ok: true };
+            }
+            return { ok: false, error: res?.error || "Invalid credentials" };
+        } catch (error) {
+            return { ok: false, error: error?.cause?.message || error?.message || "Login failed" };
+        }
     }
 }
 

@@ -190,6 +190,10 @@ class OpenStreetMap extends HTMLElement {
 
     disconnectedCallback() {
         document.removeEventListener("guess-result", this._onGuessResult);
+        if (this._map) {
+            this._map.remove();
+            this._map = null;
+        }
     }
 }
 

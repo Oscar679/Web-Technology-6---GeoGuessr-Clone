@@ -14,6 +14,13 @@ class StreetViewImage extends HTMLElement {
     this._initialized = false;
   }
 
+  /** Surfaces page-level game load errors for inline display. */
+  emitGameError(message) {
+    document.dispatchEvent(new CustomEvent("game-error", {
+      detail: { message }
+    }));
+  }
+
   /** Emits global event to show full-page loader. */
   showLoader(message = "Loading...") {
     document.dispatchEvent(new CustomEvent("app-loader:show", {
@@ -62,6 +69,10 @@ class StreetViewImage extends HTMLElement {
       const data = existingGameId
         ? await gameService.getGame(existingGameId)
         : await gameService.startGame();
+
+      if (!data?.gameId || !Array.isArray(data.images) || data.images.length === 0) {
+        throw new Error("Game data was incomplete.");
+      }
 
       if (!existingGameId) {
         // Persist generated gameId in URL so it can be shared immediately.
@@ -115,6 +126,12 @@ class StreetViewImage extends HTMLElement {
       }));
     } catch (err) {
       console.error("Error:", err);
+      if (err?.status === 401) {
+        localStorage.removeItem("token");
+        window.location.href = "logIn.html";
+        return;
+      }
+      this.emitGameError(err?.message || "Could not load the game.");
     } finally {
       this.hideLoader();
     }

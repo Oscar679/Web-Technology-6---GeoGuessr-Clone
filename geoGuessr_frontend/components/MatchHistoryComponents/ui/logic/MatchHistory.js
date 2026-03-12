@@ -29,9 +29,9 @@ class MatchHistory {
         const games = Array.isArray(data.games) ? data.games : [];
 
         const finishedGames = games.filter((row) => row.opponent_score != null);
-        const wins = finishedGames.filter((row) => row.score < row.opponent_score).length;
-        const losses = finishedGames.filter((row) => row.score > row.opponent_score).length;
-        const ties = finishedGames.filter((row) => row.score === row.opponent_score).length;
+        const wins = finishedGames.filter((row) => Number(row.score) < Number(row.opponent_score)).length;
+        const losses = finishedGames.filter((row) => Number(row.score) > Number(row.opponent_score)).length;
+        const ties = finishedGames.filter((row) => Number(row.score) === Number(row.opponent_score)).length;
         const total = finishedGames.length;
         const winPct = total > 0 ? Math.round((wins / total) * 100) : 0;
 

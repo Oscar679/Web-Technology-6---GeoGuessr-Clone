@@ -182,6 +182,19 @@ class GameService
      */
     public function saveResult(string $gameId, int $userId, int $score): string
     {
+        $gameStmt = $this->pdo->prepare(
+            "SELECT 1
+             FROM games
+             WHERE game_id = :game_id
+             LIMIT 1"
+        );
+        $gameStmt->execute([
+            "game_id" => $gameId
+        ]);
+        if (!$gameStmt->fetchColumn()) {
+            return "game_not_found";
+        }
+
         // Rule 1: a user may only submit once per game.
         $checkStmt = $this->pdo->prepare(
             "SELECT COUNT(*)

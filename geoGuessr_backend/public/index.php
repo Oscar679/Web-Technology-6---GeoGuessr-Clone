@@ -136,9 +136,16 @@ $app->group('/api', function ($group) use ($json) {
             return $json($response, ['error' => 'Invalid score payload'], 400);
         }
 
+        if ((int)$data['score'] < 0) {
+            return $json($response, ['error' => 'Score must be zero or greater'], 400);
+        }
+
         /** @var GameService $gameService */
         $gameService = $this->get(GameService::class);
         $status = $gameService->saveResult($args['gameId'], $user->user_id, (int)$data['score']);
+        if ($status === 'game_not_found') {
+            return $json($response, ['error' => 'Game not found'], 404);
+        }
         if ($status === 'already_played') {
             return $json($response, ['error' => 'You already played this game'], 409);
         }

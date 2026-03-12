@@ -43,15 +43,20 @@ class SignUp {
             return { ok: false, error: "Username and password required" };
         }
 
-        const res = await this.userService.signUp(trimmedName, trimmedPassword);
-        if (res.status === "created") {
-            const login = await this.userService.logIn(trimmedName, trimmedPassword);
-            if (login.token) {
-                localStorage.setItem("token", login.token);
-                return { ok: true };
+        try {
+            const res = await this.userService.signUp(trimmedName, trimmedPassword);
+            if (res.status === "created") {
+                const login = await this.userService.logIn(trimmedName, trimmedPassword);
+                if (login.token) {
+                    localStorage.setItem("token", login.token);
+                    return { ok: true };
+                }
             }
+
+            return { ok: false, error: res?.error || "Sign up failed" };
+        } catch (error) {
+            return { ok: false, error: error?.cause?.message || error?.message || "Sign up failed" };
         }
-        return { ok: false, error: res?.error || "Sign up failed" };
     }
 }
 

@@ -53,8 +53,8 @@ class MatchHistoryContainer extends HTMLElement {
         const matchHistory = MatchHistory.getInstance();
         try {
             const data = await matchHistory.fetchHistory();
-            const games = data.games;
-            const summaryData = data.summary;
+            const games = Array.isArray(data?.games) ? data.games : [];
+            const summaryData = data?.summary || { wins: 0, losses: 0, ties: 0, winPct: 0 };
 
             if (games.length === 0) {
                 summary.textContent = "";
@@ -115,12 +115,14 @@ class MatchHistoryContainer extends HTMLElement {
                 let outcomeClass = "bg-white";
                 let outcomeLabel = "Pending";
                 let outcomeBadgeClass = "bg-slate-100 text-slate-700";
-                if (row.opponent_score != null) {
-                    if (row.score < row.opponent_score) {
+                const ownScore = Number(row.score);
+                const opponentScore = row.opponent_score != null ? Number(row.opponent_score) : null;
+                if (opponentScore != null) {
+                    if (ownScore < opponentScore) {
                         outcomeClass = "bg-green-50";
                         outcomeLabel = "W";
                         outcomeBadgeClass = "bg-green-100 text-green-800";
-                    } else if (row.score > row.opponent_score) {
+                    } else if (ownScore > opponentScore) {
                         outcomeClass = "bg-red-50";
                         outcomeLabel = "L";
                         outcomeBadgeClass = "bg-red-100 text-red-800";
@@ -137,7 +139,7 @@ class MatchHistoryContainer extends HTMLElement {
                                         <span class="inline-flex min-w-7 items-center justify-center rounded-md px-2 py-0.5 text-xs font-semibold ${outcomeBadgeClass}">${outcomeLabel}</span>
                                     </td>
                                     <td class="py-2 pr-4 font-mono text-xs">${row.game_id}</td>
-                                    <td class="py-2 pr-4">${row.score}</td>
+                                    <td class="py-2 pr-4">${Math.round(ownScore)} km</td>
                                     <td class="py-2 pr-4">${row.opponent_name ?? "Waiting"}</td>
                                     <td class="py-2 pr-4">${timeLabel}</td>
                                 </tr>

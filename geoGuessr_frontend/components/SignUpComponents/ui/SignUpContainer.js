@@ -25,7 +25,7 @@ class SignUpContainer extends HTMLElement {
       <div>
         <label for="username" class="block text-sm/6 font-medium text-slate-800">Username</label>
         <div class="mt-2">
-          <input id="username" type="username" name="username" required autocomplete="username" class="block w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-base text-slate-900 placeholder:text-slate-400 focus:border-teal-700 focus:ring-2 focus:ring-teal-700/20 focus:outline-none sm:text-sm/6" />
+          <input id="username" type="text" name="username" required autocomplete="username" class="block w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-base text-slate-900 placeholder:text-slate-400 focus:border-teal-700 focus:ring-2 focus:ring-teal-700/20 focus:outline-none sm:text-sm/6" />
         </div>
       </div>
 
@@ -60,14 +60,14 @@ class SignUpContainer extends HTMLElement {
     this.form.addEventListener("submit", async (event) => {
       event.preventDefault();
       const signUp = SignUp.getInstance();
-      this.button.innerHTML = 'Signing up...';
+      this.button.textContent = 'Signing up...';
       this.status.textContent = '';
       this.button.classList.add('opacity-70');
       this.button.classList.add('pointer-events-none');
 
       const result = await signUp.submit(this.username.value, this.password.value);
       if (result.ok) {
-        this.button.innerHTML = 'Success';
+        this.button.textContent = 'Success';
         this.status.textContent = 'Account created';
         this.status.classList.remove('text-red-600');
         this.status.classList.add('text-green-700');
@@ -75,7 +75,7 @@ class SignUpContainer extends HTMLElement {
           window.location.href = 'Game.html';
         }, 600);
       } else {
-        this.button.innerHTML = 'Sign up';
+        this.button.textContent = 'Sign up';
         this.status.textContent = result.error || 'Sign up failed';
         this.status.classList.remove('text-green-700');
         this.status.classList.add('text-red-600');
