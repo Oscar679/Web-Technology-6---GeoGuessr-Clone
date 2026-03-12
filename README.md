@@ -1,177 +1,275 @@
-# Fullstackprojekt 1ME326 - GeoGuessr-inspirerat utmaningsspel
+﻿# Fullstackprojekt 1ME326 – GeoGuessr-inspirerat utmaningsspel
 
-## Projektoversikt
+## Projektöversikt
 
-Detta projekt ar en fullstack-webbapplikation dar anvandare kan utmana varandra i ett geografiskt gissningsspel. En spelare startar en spelomgang, spelar fem rundor och far darefter en unik lank till exakt samma omgang. Lanken kan delas med en van som da spelar med samma bilder och samma forutsattningar. Nar bada spelarna har genomfort omgangen visas en resultatlista dar resultaten kan jamforas.
+Detta projekt är en fullstack-webbapplikation där användare kan utmana varandra i ett geografiskt gissningsspel. En spelare startar en spelomgång, spelar fem rundor och får därefter en unik länk till exakt samma omgång. Länken kan delas med en vän som då spelar med samma bilder och samma förutsättningar. När båda spelarna har genomfört omgången visas en resultatlista där resultaten kan jämföras.
 
-Spelet bygger pa gatubilder fran ett externt API och kartinteraktion i webblasaren. Resultatet beraknas som summan av avstandet mellan spelarens gissning och den verkliga platsen. Lagre poang ar battre.
+Spelet bygger på gatubilder från ett externt API och kartinteraktion i webbläsaren. Resultatet beräknas som summan av avståndet mellan spelarens gissning och den verkliga platsen. Lägre poäng är bättre.
 
 Projektet uppfyller grundkraven i uppgiften:
 
-- anvandaren kan skapa en ny spelomgang
-- speldata hamtas fran ett externt API
-- varje spelomgang far en unik delbar lank
+- användaren kan skapa en ny spelomgång
+- speldata hämtas från ett externt API
+- varje spelomgång får en unik delbar länk
 - resultat sparas i databasen
-- en anvandare kan bara spela samma spelomgang en gang
-- resultatlista visas efter avslutad spelomgang
+- en användare kan bara spela samma spelomgång en gång
+- resultatlista visas efter avslutad spelomgång
 
-Projektet uppfyller ocksa flera extrakrav:
+Projektet uppfyller också flera extrakrav:
 
 - autentisering och inloggning
 - personlig historik
-- responsiv design for desktop och mobil
+- responsiv design för desktop och mobil
 - global leaderboard med rating
 
 ## Arkitekturbeskrivning
 
-Applikationen ar uppdelad i tva huvuddelar: ett frontend-projekt i JavaScript och ett backend-projekt i PHP. Frontend kors i webblasaren och ansvarar for presentation, anvandarinteraktion och kommunikation med API:t. Backend ansvarar for autentisering, spelgenerering, lagring av resultat och hamtning av statistik.
+Applikationen är uppdelad i två huvuddelar: ett frontend-projekt i JavaScript och ett backend-projekt i PHP. Frontend körs i webbläsaren och ansvarar för presentation, användarinteraktion och kommunikation med API:t. Backend ansvarar för autentisering, spelgenerering, lagring av resultat och hämtning av statistik.
 
-### Overgripande struktur
+### Övergripande struktur
 
 ```text
-Browser
-  |
-  | HTTP/JSON + Bearer token
-  v
+Webbläsare
+   |
+   | HTTP/JSON + Bearer-token
+   v
 Frontend (Web Components + Vite + Tailwind)
-  |
-  v
+   |
+   v
 REST API (PHP + Slim 4)
-  |
-  +--> MySQL / MariaDB
-  |
-  +--> Mapillary API
+   |
+   +--> MySQL / MariaDB
+   |
+   +--> Mapillary API
 ```
 
-### Dataflode
+### UML-diagram
 
-Ett typiskt flode nar en anvandare startar en spelomgang ser ut sa har:
+```mermaid
+classDiagram
+    class AbstractService {
+        +buildUrl(path)
+        +getAuthHeaders()
+        +requestJson(path, options)
+    }
 
-1. Anvandaren loggar in eller registrerar ett konto.
-2. Frontend skickar en forfragan till `POST /api/startgame`.
+    class UserService {
+        +logIn(name, password)
+        +signUp(name, password)
+    }
+
+    class GameApiService {
+        +startGame()
+        +getGame(gameId)
+        +getResults(gameId)
+        +getGlobalLeaderboard()
+        +getUserHistory()
+        +saveResult(game)
+    }
+
+    class Game {
+        +round
+        +score
+        +gameId
+        +submitGuess(coords)
+        +updateRound()
+        +completeGame()
+    }
+
+    class GameContainer
+    class StreetViewImage
+    class OpenStreetMap
+    class GameWinnerContainer
+
+    class AuthService {
+        +createToken(userId, name)
+        +verifyToken(token)
+    }
+
+    class BackendUserService {
+        +addUser(name, password)
+        +getUserByCredentials(name, password)
+        +getUserByName(name)
+    }
+
+    class GameService {
+        +start(userId)
+        +getGame(gameId)
+        +getResults(gameId)
+        +getGlobalLeaderboard()
+        +getUserHistory(userId)
+        +saveResult(gameId, userId, score)
+    }
+
+    class MapillaryService {
+        +getRandomImage(count)
+    }
+
+    AbstractService <|-- UserService
+    AbstractService <|-- GameApiService
+    GameContainer --> Game
+    StreetViewImage --> Game
+    OpenStreetMap --> Game
+    GameWinnerContainer --> GameApiService
+    Game --> GameApiService
+    GameService --> MapillaryService
+    AuthService --> BackendUserService
+```
+
+### Flödesdiagram
+
+```mermaid
+flowchart TD
+    A[Användare loggar in] --> B[Frontend sparar JWT]
+    B --> C[Användare startar spel]
+    C --> D[POST /api/startgame]
+    D --> E[Backend verifierar token]
+    E --> F[MapillaryService hämtar 5 bilder]
+    F --> G[Spel sparas i databasen med gameId]
+    G --> H[Frontend renderar rundorna]
+    H --> I[Användaren gissar på kartan]
+    I --> J[Avstånd räknas ut i frontend]
+    J --> K{Fler rundor kvar?}
+    K -- Ja --> H
+    K -- Nej --> L[POST /api/games/{gameId}/result]
+    L --> M[Backend sparar resultat]
+    M --> N[Backend uppdaterar statistik]
+    N --> O[Frontend hämtar resultatlista]
+    O --> P[Resultatsida visas]
+```
+
+### Dataflöde
+
+Ett typiskt flöde när en användare startar en spelomgång ser ut så här:
+
+1. Användaren loggar in eller registrerar ett konto.
+2. Frontend skickar en förfrågan till `POST /api/startgame`.
 3. Backend verifierar JWT-token och anropar `MapillaryService`.
-4. `MapillaryService` hamtar fem slumpmassiga gatubilder fran Mapillary inom utvalda geografiska omraden.
-5. Backend sparar spelomgangen i databasen med ett unikt `gameId` och lagrar bilddata och koordinater.
-6. Frontend far tillbaka `gameId` och bilddata och renderar spelet.
-7. For varje runda placerar anvandaren en markor pa kartan.
-8. Frontend raknar ut avstandet med Haversine-formeln och summerar spelarens totalpoang.
-9. Nar alla rundor ar klara skickas resultatet till `POST /api/games/{gameId}/result`.
-10. Backend sparar resultatet, kontrollerar att anvandaren inte redan spelat samma omgang och uppdaterar spelarstatistik.
-11. Resultatsidan hamtar topplistan via `GET /api/games/{gameId}/results`.
+4. `MapillaryService` hämtar fem slumpmässiga gatubilder från Mapillary inom utvalda geografiska områden.
+5. Backend sparar spelomgången i databasen med ett unikt `gameId` och lagrar bilddata och koordinater.
+6. Frontend får tillbaka `gameId` och bilddata och renderar spelet.
+7. För varje runda placerar användaren en markör på kartan.
+8. Frontend räknar ut avståndet med Haversine-formeln och summerar spelarens totalpoäng.
+9. När alla rundor är klara skickas resultatet till `POST /api/games/{gameId}/result`.
+10. Backend sparar resultatet, kontrollerar att användaren inte redan spelat samma omgång och uppdaterar spelarstatistik.
+11. Resultatsidan hämtar topplistan via `GET /api/games/{gameId}/results`.
 
 ### Komponenter och ansvar
 
-Frontend ar uppdelad i ateranvandbara Web Components. Exempel:
+Frontend är uppdelad i återanvändbara Web Components. Exempel:
 
-- `game-container`: styr spelvyn och rundflodet
+- `game-container`: styr spelvyn och rundflödet
 - `street-view-image`: laddar och visar spelbilderna
 - `open-street-map`: hanterar kartan och spelarens gissningar
-- `game-winner`: visar resultat for en spelomgang
+- `game-winner`: visar resultat för en spelomgång
 - `leader-board`: visar global leaderboard
 - `match-history`: visar spelarens historik
 
-Backend ar uppdelad i tjanster:
+Backend är uppdelad i tjänster:
 
 - `AuthService`: skapar och verifierar JWT-token
-- `UserService`: hanterar anvandare och losenord
-- `GameService`: skapar spel, sparar resultat och hamtar historik/leaderboard
+- `UserService`: hanterar användare och lösenord
+- `GameService`: skapar spel, sparar resultat och hämtar historik samt leaderboard
 - `MapillaryService`: integrerar mot det externa bild-API:t
 
 ### Databasmodell
 
-Datamodellen bygger i huvudsak pa tre typer av information:
+Datamodellen bygger i huvudsak på tre typer av information:
 
-- anvandare
-- spelomgangar
-- spelresultat/statistik
+- användare
+- spelomgångar
+- spelresultat och statistik
 
-Forenklat innehaller databasen tabeller for:
+Förenklat innehåller databasen tabeller för:
 
-- `users`: anvandarkonton
-- `games`: spelomgangar med genererad platsdata
-- `game_results`: en rad per spelares genomforda forsok
+- `users`: användarkonton
+- `games`: spelomgångar med genererad platsdata
+- `game_results`: en rad per spelares genomförda försök
 - `player_stats`: aggregerad statistik som vinster, matcher och rating
 
-Relationerna ar relativt raka: en anvandare kan ha manga resultat, en spelomgang kan ha upp till tva resultat, och statistik sammanstalls per anvandare.
+Relationerna är relativt raka: en användare kan ha många resultat, en spelomgång kan ha upp till två resultat, och statistik sammanställs per användare.
 
 ## Teknikval och motiveringar
 
 ### Backend: PHP med Slim 4
 
-Jag valde PHP med Slim 4 som backend-ramverk. Kravet i uppgiften var att anvanda PHP med ett befintligt ramverk, och Slim passade bra eftersom projektet framst behovde routing, middleware och JSON-svar. Alternativet hade varit ett storre ramverk som Laravel, men det hade gett mer inbyggd funktionalitet an projektet faktiskt behovde. For ett mindre spel-API var Slim enklare att forsta och lattare att halla strukturerat.
+Jag valde PHP med Slim 4 som backend-ramverk. Kravet i uppgiften var att använda PHP med ett befintligt ramverk, och Slim passade bra eftersom projektet främst behövde routing, middleware och JSON-svar. Alternativet hade varit ett större ramverk som Laravel, men det hade gett mer inbyggd funktionalitet än projektet faktiskt behövde. För ett mindre spel-API var Slim enklare att förstå och lättare att hålla strukturerat.
 
 ### Frontend: Web Components
 
-I frontend valde jag Web Components i stallet for React eller Vue. Anledningen var att uppgiften kravde nagon form av UI-ramverk eller API, men inte nodvandigtvis ett tungt frontendbibliotek. Web Components gav en tydlig komponentindelning utan extra runtime-beroenden. Nackdelen ar att state-hanteringen blir mer manuell an i React, men i den har applikationens storlek fungerade det bra.
+I frontend valde jag Web Components i stället för React eller Vue. Anledningen var att uppgiften krävde någon form av UI-ramverk eller API, men inte nödvändigtvis ett tungt frontendbibliotek. Web Components gav en tydlig komponentindelning utan extra runtime-beroenden. Nackdelen är att state-hanteringen blir mer manuell än i React, men i den här applikationens storlek fungerade det bra.
 
 ### Byggkedja: Vite och Tailwind
 
-Frontend paketeras med Vite. Det ger snabb utvecklingsserver, enkel multipage-konfiguration och minifierad produktionbuild. Tailwind anvandes for att bygga ett konsekvent och responsivt grannssnitt snabbt. Ett alternativ hade varit vanlig CSS eller Bootstrap, men Tailwind gav battre kontroll over layout och komponentstil utan att lasa designen till ett fardigt system.
+Frontend paketeras med Vite. Det ger snabb utvecklingsserver, enkel multipage-konfiguration och minifierad produktionsbuild. Tailwind användes för att bygga ett konsekvent och responsivt gränssnitt snabbt. Ett alternativ hade varit vanlig CSS eller Bootstrap, men Tailwind gav bättre kontroll över layout och komponentstil utan att låsa designen till ett färdigt system.
 
-### Databasatkomst: PDO
+### Databasåtkomst: PDO
 
-Pa backend anvands PDO direkt i stallet for ett ORM. Jag valde detta for att datamodellen ar liten och fragorna ar relativt enkla. Ett ORM hade kunnat minska mangden SQL i vissa delar, men hade ocksa okat abstraktionsnivan. Med PDO blev det tydligt exakt vad som sparas och hamtas.
+På backend används PDO direkt i stället för ett ORM. Jag valde detta för att datamodellen är liten och frågorna är relativt enkla. Ett ORM hade kunnat minska mängden SQL i vissa delar, men hade också ökat abstraktionsnivån. Med PDO blev det tydligt exakt vad som sparas och hämtas.
 
 ### Autentisering: JWT
 
-For autentisering anvands JWT i stallet for PHP-sessioner. Eftersom frontend och backend ar frikopplade och kommunicerar via REST passade stateless autentisering battre. Frontend skickar en Bearer-token till skyddade endpoints. En nackdel ar att token lagras i `localStorage`, vilket kraver att resten av klientkoden ar forsiktig med XSS-risker. For ett kursprojekt var detta en rimlig kompromiss, men i en storre applikation hade jag overvagt en sakrare cookie-baserad losning.
+För autentisering används JWT i stället för PHP-sessioner. Eftersom frontend och backend är frikopplade och kommunicerar via REST passade stateless autentisering bättre. Frontend skickar en Bearer-token till skyddade endpoints. En nackdel är att token lagras i `localStorage`, vilket kräver att resten av klientkoden är försiktig med XSS-risker. För ett kursprojekt var detta en rimlig kompromiss, men i en större applikation hade jag övervägt en säkrare cookie-baserad lösning.
 
-### Externa tjanster: Mapillary och OpenStreetMap
+### Externa tjänster: Mapillary och OpenStreetMap
 
-For spelinnehallet anvands Mapillary. Det uppfyller kravet pa externt API och gor att spelet kan generera manga omgangar utan att innehallet tar slut. For kartan anvands Leaflet med OpenStreetMap. Det var ett naturligt val eftersom det ar gratis, val dokumenterat och fungerar bra i webblasaren utan egen API-nyckel.
+För spelinnehållet används Mapillary. Det uppfyller kravet på externt API och gör att spelet kan generera många omgångar utan att innehållet tar slut. För kartan används Leaflet med OpenStreetMap. Det var ett naturligt val eftersom det är gratis, väl dokumenterat och fungerar bra i webbläsaren utan egen API-nyckel.
 
 ### Resultatmodell och rating
 
-Utöver den lokala resultatlistan for varje omgang lade jag till global statistik och en enkel ratingmodell. Den ar inte en full Elo-implementation, men fungerar som langsiktig progression. Alternativet hade varit att bara spara raa matchresultat, men rating och historik gor applikationen mer spelbar over tid och uppfyller extrakraven battre.
+Utöver den lokala resultatlistan för varje omgång lade jag till global statistik och en enkel ratingmodell. Den är inte en full Elo-implementation, men fungerar som långsiktig progression. Alternativet hade varit att bara spara råa matchresultat, men rating och historik gör applikationen mer spelbar över tid och uppfyller extrakraven bättre.
 
-### Felhantering och underhallbarhet
+### Felhantering och underhållbarhet
 
-Under projektet blev det tydligt att ateranvandbar felhantering var viktig. Darfor samlades frontendens fetch-logik i en gemensam tjanst for att minska duplicerad kod och fa konsekventa felmeddelanden. Pa backend separerades logik i serviceklasser i stallet for att lagga allt direkt i route handlers. Det gor projektet lattare att felsoka och vidareutveckla.
+Under projektet blev det tydligt att återanvändbar felhantering var viktig. Därför samlades frontendens fetch-logik i en gemensam tjänst för att minska duplicerad kod och få konsekventa felmeddelanden. På backend separerades logik i serviceklasser i stället för att lägga allt direkt i route handlers. Det gör projektet lättare att felsöka och vidareutveckla.
 
-## AI-anvandning
+## AI-användning
 
-Jag anvande generativa AI-verktyg aktivt i projektet, framst som stod for implementation, felsokning och refaktorering. Verktygen anvandes inte som ersattning for forstaelse, utan som ett satt att snabbare komma fram till losningar som sedan behovde granskas och anpassas.
+Jag använde generativa AI-verktyg aktivt i projektet, främst som stöd för implementation, felsökning och refaktorering. Verktygen användes inte som ersättning för förståelse, utan som ett sätt att snabbare komma fram till lösningar som sedan behövde granskas och anpassas.
 
 ### Verktyg
 
-- ChatGPT / Codex for kodforslag, refaktorering och felsokning
-- eventuella andra kodassistenter under utvecklingsarbetet vid behov
+- Claude användes mycket under projektet, särskilt för kodgenerering, felsökning, omstrukturering och snabb iterativ utveckling
+- ChatGPT och Codex användes också för kodförslag, refaktorering och buggrättning
 
-### Vad AI anvandes till
+### Vad AI användes till
 
-- generera forsta versioner av UI-komponenter
-- hjalpa till att strukturera Slim-backend och tjansteklasser
-- foresla integration mot Mapillary API
-- hjalpa till med JWT-autentisering
-- hitta och ratta buggar i resultatfloden och formular
-- stada upp redundant kod och centralisera API-anrop
+- generera första versioner av UI-komponenter
+- hjälpa till att strukturera Slim-backend och tjänsteklasser
+- föreslå integration mot Mapillary API
+- hjälpa till med JWT-autentisering
+- hitta och rätta buggar i resultatflöden och formulär
+- städa upp redundant kod och centralisera API-anrop
+- föreslå förbättringar i README, arkitekturbeskrivning och teknisk dokumentation
 
 ### Anpassningar och korrigeringar
 
-AI-genererad kod behovde nastan alltid justeras. Exempel:
+AI-genererad kod behövde nästan alltid justeras. Exempel:
 
-- vissa komponenter inneholl onodig boilerplate
-- felhantering var ibland for svag eller inkonsekvent
-- UI-texter och tillstand var ibland logiskt felaktiga
-- vissa losningar blev mer komplexa an nodvandigt och behovde forenklas
+- vissa komponenter innehöll onödig boilerplate
+- felhantering var ibland för svag eller inkonsekvent
+- UI-texter och tillstånd var ibland logiskt felaktiga
+- vissa lösningar blev mer komplexa än nödvändigt och behövde förenklas
 
-Ett konkret exempel var resultatsidan dar en spelare som redan spelat fortfarande kunde visas som `waiting`. Dar behovde logiken andras manuellt sa att faktisk poang visades nar ett resultat redan fanns sparat.
+Ett konkret exempel var resultatsidan där en spelare som redan spelat fortfarande kunde visas som `waiting`. Där behövde logiken ändras manuellt så att faktisk poäng visades när ett resultat redan fanns sparat.
 
 ### Reflektion kring AI
 
-Det som fungerade bast var att anvanda AI for avgransade delproblem, till exempel "skriv en service som hamtar data fran ett API" eller "hjalp mig hitta varfor det har UI-tillstandet blir fel". Det som fungerade samre var nar AI fick for oppna uppgifter, eftersom svaret da ofta blev mer generiskt eller overbyggt an projektet behovde.
+Det som fungerade bäst var att använda AI för avgränsade delproblem, till exempel "skriv en service som hämtar data från ett API" eller "hjälp mig hitta varför det här UI-tillståndet blir fel". Det som fungerade sämre var när AI fick för öppna uppgifter, eftersom svaret då ofta blev mer generiskt eller överbyggt än projektet behövde.
 
-## Reflektioner och lardomar
+Claude var särskilt användbart när jag ville arbeta snabbt i flera små iterationer: först få fram ett fungerande förslag, sedan granska det, testa det och be om en mindre förbättring i nästa steg. Det passade bra ihop med ett agilt arbetssätt där applikationen skulle vara körbar under hela utvecklingsperioden.
 
-Det som gick bast i projektet var den iterativa utvecklingen. Genom att halla projektet korbart under hela processen blev det enklare att testa nya delar utan att allt annat foll sonder. Kombinationen av en liten backendstruktur och komponentbaserad frontend gjorde ocksa att det gick att lagga till funktioner stegvis.
+## Reflektioner och lärdomar
 
-Den storsta tekniska utmaningen var integrationen mot externa data. Mapillary gav inte alltid jamnt resultat beroende pa omrade, sa spelinnehallet behovde genereras fran utvalda geografiska platser dar tackningen var battre. En annan utmaning var att halla spelreglerna konsekventa, sarskilt att samma anvandare inte ska kunna spela samma lank flera ganger och att en match bara ska acceptera tva spelare.
+Det som gick bäst i projektet var den iterativa utvecklingen. Genom att hålla projektet körbart under hela processen blev det enklare att testa nya delar utan att allt annat föll sönder. Kombinationen av en liten backendstruktur och komponentbaserad frontend gjorde också att det gick att lägga till funktioner stegvis.
 
-Om jag skulle gora om projektet hade jag lagt mer tid tidigt pa dokumenterad databasdesign och teststrategi. Jag hade ocksa infort striktare kvalitetskontroller tidigare, till exempel linting och tydligare gemensamma hjalpfunktioner i frontend, eftersom flera buggar i efterhand visade sig bero pa duplicerad logik.
+Den största tekniska utmaningen var integrationen mot externa data. Mapillary gav inte alltid jämnt resultat beroende på område, så spelinnehållet behövde genereras från utvalda geografiska platser där täckningen var bättre. En annan utmaning var att hålla spelreglerna konsekventa, särskilt att samma användare inte ska kunna spela samma länk flera gånger och att en match bara ska acceptera två spelare.
 
-AI paverkade arbetssattet tydligt. Jag kunde arbeta snabbare och ta mig an fler delar av applikationen, men det flyttade ocksa fokus fran att skriva varje rad sjalv till att granska, forsta och forbattra kodforslag. Det gjorde kvalitetsgranskning viktigare an i mindre projekt utan AI.
+Om jag skulle göra om projektet hade jag lagt mer tid tidigt på dokumenterad databasdesign och teststrategi. Jag hade också infört striktare kvalitetskontroller tidigare, till exempel linting och tydligare gemensamma hjälpfunktioner i frontend, eftersom flera buggar i efterhand visade sig bero på duplicerad logik.
 
-## Korning lokalt
+AI påverkade arbetssättet tydligt. Jag kunde arbeta snabbare och ta mig an fler delar av applikationen, men det flyttade också fokus från att skriva varje rad själv till att granska, förstå och förbättra kodförslag. Det gjorde kvalitetsgranskning viktigare än i mindre projekt utan AI.
+
+## Körning lokalt
 
 ### Frontend
 
@@ -181,7 +279,7 @@ npm install
 npm run dev
 ```
 
-Produktionbuild:
+Produktionsbuild:
 
 ```bash
 npm run build
@@ -190,10 +288,10 @@ npm run build
 ### Backend
 
 1. Konfigurera `geoGuessr_backend/.env`
-2. Sakerstall att Composer-beroenden finns installerade
+2. Säkerställ att Composer-beroenden finns installerade
 3. Peka webbserverns document root mot `geoGuessr_backend/public`
 
-## API-oversikt
+## API-översikt
 
 Publika endpoints:
 
@@ -208,9 +306,3 @@ Skyddade endpoints:
 - `POST /api/games/{gameId}/result`
 - `GET /api/games/{gameId}/results`
 - `GET /api/users/me/games`
-
-## Bilagor i repo
-
-- `DEVELOPMENT_PLAN.md` - stod for agil process och iterationer
-- `DOCUMENTATION.md` - tidigare dokumentationsutkast
-- `schema.sql` - databasstruktur
