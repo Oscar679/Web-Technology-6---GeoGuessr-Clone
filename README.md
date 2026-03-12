@@ -47,18 +47,20 @@ REST API (PHP + Slim 4)
 
 ```mermaid
 classDiagram
-    class AbstractService {
+    class HTMLElement
+
+    class Service {
         +buildUrl(path)
         +getAuthHeaders()
         +requestJson(path, options)
     }
 
-    class UserService {
+    class FrontendUserService {
         +logIn(name, password)
         +signUp(name, password)
     }
 
-    class GameApiService {
+    class FrontendGameService {
         +startGame()
         +getGame(gameId)
         +getResults(gameId)
@@ -71,15 +73,32 @@ classDiagram
         +round
         +score
         +gameId
-        +submitGuess(coords)
+        +submitGuess(guessedCoordinates)
         +updateRound()
+        +setGameId(gameId)
         +completeGame()
+    }
+
+    class Geolocation {
+        +haversine(actualCoords, guessedCoords)
     }
 
     class GameContainer
     class StreetViewImage
     class OpenStreetMap
     class GameWinnerContainer
+    class LivePointsContainer
+    class MatchHistoryContainer
+    class LeaderboardContainer
+    class LogInContainer
+    class SignUpContainer
+    class NavBar
+    class PageLoader
+    class Index
+    class MatchHistory
+    class Leaderboard
+    class LogIn
+    class SignUp
 
     class AuthService {
         +createToken(userId, name)
@@ -92,7 +111,7 @@ classDiagram
         +getUserByName(name)
     }
 
-    class GameService {
+    class BackendGameService {
         +start(userId)
         +getGame(gameId)
         +getResults(gameId)
@@ -105,37 +124,61 @@ classDiagram
         +getRandomImage(count)
     }
 
-    AbstractService <|-- UserService
-    AbstractService <|-- GameApiService
-    GameContainer --> Game
+    Service <|-- FrontendUserService
+    Service <|-- FrontendGameService
+
+    HTMLElement <|-- GameContainer
+    HTMLElement <|-- StreetViewImage
+    HTMLElement <|-- OpenStreetMap
+    HTMLElement <|-- GameWinnerContainer
+    HTMLElement <|-- LivePointsContainer
+    HTMLElement <|-- MatchHistoryContainer
+    HTMLElement <|-- LeaderboardContainer
+    HTMLElement <|-- LogInContainer
+    HTMLElement <|-- SignUpContainer
+    HTMLElement <|-- NavBar
+    HTMLElement <|-- PageLoader
+    HTMLElement <|-- Index
+
+    FrontendGameService --> Game
+    Game --> Geolocation
+    Game --> FrontendGameService
     StreetViewImage --> Game
-    OpenStreetMap --> Game
-    GameWinnerContainer --> GameApiService
-    Game --> GameApiService
-    GameService --> MapillaryService
+    StreetViewImage --> FrontendGameService
+    GameWinnerContainer --> FrontendGameService
+    MatchHistory --> FrontendGameService
+    Leaderboard --> FrontendGameService
+    LogIn --> FrontendUserService
+    SignUp --> FrontendUserService
+    MatchHistoryContainer --> MatchHistory
+    LeaderboardContainer --> Leaderboard
+    LogInContainer --> LogIn
+    SignUpContainer --> SignUp
+
+    BackendGameService --> MapillaryService
     AuthService --> BackendUserService
 ```
 
 ### Flödesdiagram
 
 ```mermaid
-flowchart TD
-    A[Användare loggar in] --> B[Frontend sparar JWT]
-    B --> C[Användare startar spel]
-    C --> D[POST /api/startgame]
-    D --> E[Backend verifierar token]
-    E --> F[MapillaryService hämtar 5 bilder]
-    F --> G[Spel sparas i databasen med gameId]
-    G --> H[Frontend renderar rundorna]
-    H --> I[Användaren gissar på kartan]
-    I --> J[Avstånd räknas ut i frontend]
-    J --> K{Fler rundor kvar?}
-    K -- Ja --> H
-    K -- Nej --> L[POST /api/games/{gameId}/result]
-    L --> M[Backend sparar resultat]
-    M --> N[Backend uppdaterar statistik]
-    N --> O[Frontend hämtar resultatlista]
-    O --> P[Resultatsida visas]
+graph TD
+    A["Användare loggar in"] --> B["Frontend sparar JWT"]
+    B --> C["Användare startar spel"]
+    C --> D["POST /api/startgame"]
+    D --> E["Backend verifierar token"]
+    E --> F["MapillaryService hämtar 5 bilder"]
+    F --> G["Spel sparas i databasen"]
+    G --> H["Frontend renderar rundor"]
+    H --> I["Användaren gissar på kartan"]
+    I --> J["Avstånd räknas ut i frontend"]
+    J --> K{"Fler rundor kvar"}
+    K -->|Ja| H
+    K -->|Nej| L["POST /api/games/{gameId}/result"]
+    L --> M["Backend sparar resultat"]
+    M --> N["Backend uppdaterar statistik"]
+    N --> O["GET /api/games/{gameId}/results"]
+    O --> P["Resultatsida visas"]
 ```
 
 ### Dataflöde
