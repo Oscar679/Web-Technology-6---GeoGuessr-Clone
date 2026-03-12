@@ -57,12 +57,12 @@ classDiagram
         +requestJson(path, options)
     }
 
-    class FrontendUserService {
+    class UserService {
         +logIn(name, password)
         +signUp(name, password)
     }
 
-    class FrontendGameService {
+    class GameService {
         +startGame()
         +getGame(gameId)
         +getResults(gameId)
@@ -95,24 +95,24 @@ classDiagram
     class LogIn
     class SignUp
 
-    Service <|-- FrontendUserService
-    Service <|-- FrontendGameService
+    Service <|-- UserService
+    Service <|-- GameService
 
     HTMLElement <|-- GameContainer
     HTMLElement <|-- StreetViewImage
     HTMLElement <|-- OpenStreetMap
     HTMLElement <|-- GameWinnerContainer
 
-    FrontendGameService --> Game
+    GameService --> Game
     Game --> Geolocation
-    Game --> FrontendGameService
+    Game --> GameService
     StreetViewImage --> Game
-    StreetViewImage --> FrontendGameService
-    GameWinnerContainer --> FrontendGameService
-    MatchHistory --> FrontendGameService
-    Leaderboard --> FrontendGameService
-    LogIn --> FrontendUserService
-    SignUp --> FrontendUserService
+    StreetViewImage --> GameService
+    GameWinnerContainer --> GameService
+    MatchHistory --> GameService
+    Leaderboard --> GameService
+    LogIn --> UserService
+    SignUp --> UserService
 ```
 
 #### Backend
@@ -124,13 +124,13 @@ classDiagram
         +verifyToken(token)
     }
 
-    class BackendUserService {
+    class UserService {
         +addUser(name, password)
         +getUserByCredentials(name, password)
         +getUserByName(name)
     }
 
-    class BackendGameService {
+    class GameService {
         +start(userId)
         +getGame(gameId)
         +getResults(gameId)
@@ -143,8 +143,8 @@ classDiagram
         +getRandomImage(count)
     }
 
-    BackendGameService --> MapillaryService
-    AuthService --> BackendUserService
+    GameService --> MapillaryService
+    AuthService --> UserService
 ```
 
 ### Flödesdiagram
