@@ -54,6 +54,7 @@ För att göra diagrammet läsbart visar jag här de viktigaste relationerna i s
 ```mermaid
 classDiagram
     class Service {
+        <<abstract>>
         +buildUrl(path)
         +getAuthHeaders()
         +requestJson(path, options)
@@ -74,9 +75,11 @@ classDiagram
     }
 
     class Game {
+        +instance$
         +round
         +score
         +gameId
+        +getInstance(coordinates)$
         +submitGuess(guessedCoordinates)
         +updateRound()
         +setGameId(gameId)
@@ -96,6 +99,30 @@ classDiagram
     class Leaderboard
     class LogIn
     class SignUp
+
+    class MatchHistory {
+        +instance$
+        +getInstance()$
+        +fetchHistory()
+    }
+
+    class Leaderboard {
+        +instance$
+        +getInstance()$
+        +fetchResults()
+    }
+
+    class LogIn {
+        +instance$
+        +getInstance()$
+        +submit(name, password)
+    }
+
+    class SignUp {
+        +instance$
+        +getInstance()$
+        +submit(name, password)
+    }
 
     Service <|-- UserService
     Service <|-- GameService
