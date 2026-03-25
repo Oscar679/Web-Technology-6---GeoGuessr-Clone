@@ -3,3 +3,5 @@
 .env.production
 node_modules
 dist
+geoGuessr_backend/vendor/
+geoGuessr_backend/composer.phar
