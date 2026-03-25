@@ -354,7 +354,7 @@ npm run build
 ### Backend
 
 1. Konfigurera `geoGuessr_backend/.env`
-2. Säkerställ att Composer-beroenden finns installerade
+2. Installera beroenden: `cd geoGuessr_backend && composer install`
 3. Peka webbserverns document root mot `geoGuessr_backend/public`
 
 ## API-översikt
