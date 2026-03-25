@@ -1,17 +1,5 @@
 import GameService from "../../../api/GameService";
 
-/** Decodes the name claim from the stored JWT without a library. */
-function getOwnName() {
-    const token = localStorage.getItem("token");
-    if (!token) return "Player 1";
-    try {
-        const payload = JSON.parse(atob(token.split(".")[1]));
-        return payload.name || "Player 1";
-    } catch {
-        return "Player 1";
-    }
-}
-
 /**
  * Game completion view for 1v1 outcome + sharing controls.
  * Shows waiting state for opponent and hides share section after both have played.
@@ -33,9 +21,9 @@ class GameWinnerContainer extends HTMLElement {
                     <p data-title class="mt-1 text-lg font-semibold text-slate-900"></p>
                     <p data-subtitle class="mt-1 text-sm text-slate-600"></p>
                 </div>
-                <div class="grid gap-2 px-5 py-4 sm:grid-cols-2">
-                    <p data-player-1-score class="player-1-score rounded-lg border border-slate-200 bg-white/85 px-3 py-2 text-sm text-slate-800"></p>
-                    <p data-player-2-score class="player-2-score rounded-lg border border-slate-200 bg-white/85 px-3 py-2 text-sm text-slate-800"></p>
+                <div class="grid gap-3 px-5 py-4 sm:grid-cols-2">
+                    <div data-player-1-score class="player-1-score rounded-lg border border-slate-200 bg-white/85 px-4 py-3"></div>
+                    <div data-player-2-score class="player-2-score rounded-lg border border-slate-200 bg-white/85 px-4 py-3"></div>
                 </div>
             </div>
             <div data-share-section class="app-panel mt-4 overflow-hidden rounded-2xl">
@@ -109,10 +97,10 @@ class GameWinnerContainer extends HTMLElement {
         title.textContent = "Calculating result...";
         subtitle.textContent = "Fetching leaderboard for this game.";
         if (player1ScoreElement) {
-            player1ScoreElement.textContent = `${getOwnName()}: waiting...`;
+            player1ScoreElement.innerHTML = `<p class="text-xs font-semibold uppercase tracking-wide text-slate-400">Player 1</p><p class="mt-1 text-sm text-slate-400">Waiting...</p>`;
         }
         if (player2ScoreElement) {
-            player2ScoreElement.textContent = "Player 2: waiting...";
+            player2ScoreElement.innerHTML = `<p class="text-xs font-semibold uppercase tracking-wide text-slate-400">Player 2</p><p class="mt-1 text-sm text-slate-400">Waiting...</p>`;
         }
 
         try {
@@ -129,15 +117,6 @@ class GameWinnerContainer extends HTMLElement {
             }
 
             if (results.length === 1) {
-                const first = results[0];
-                const firstScore = Number(first.score);
-
-                if (player1ScoreElement) {
-                    player1ScoreElement.textContent = `${first.player_name}: ${Math.round(firstScore)} km`;
-                }
-                if (player2ScoreElement) {
-                    player2ScoreElement.textContent = "Player 2: waiting...";
-                }
                 title.textContent = "Round complete";
                 subtitle.textContent = "Waiting for an opponent to finish this game.";
                 return;
@@ -148,17 +127,27 @@ class GameWinnerContainer extends HTMLElement {
             const firstScore = Number(first.score);
             const secondScore = Number(second.score);
 
-            if (player1ScoreElement && player2ScoreElement) {
-                player1ScoreElement.textContent = `${first.player_name}: ${Math.round(firstScore)} km`;
-                player2ScoreElement.textContent = `${second.player_name}: ${Math.round(secondScore)} km`;
-            }
-
             // Lower score wins in this game mode.
             let winner = null;
             if (firstScore < secondScore) {
                 winner = first;
             } else if (secondScore < firstScore) {
                 winner = second;
+            }
+
+            if (player1ScoreElement && player2ScoreElement) {
+                const p1IsWinner = winner && winner.player_name === first.player_name;
+                const p2IsWinner = winner && winner.player_name === second.player_name;
+                if (p1IsWinner) player1ScoreElement.classList.add('score-winner');
+                if (p2IsWinner) player2ScoreElement.classList.add('score-winner');
+                player1ScoreElement.innerHTML = `
+                    <p class="text-xs font-semibold uppercase tracking-wide text-slate-500">${first.player_name}${p1IsWinner ? ' <span class="text-teal-700">&#10003; Winner</span>' : ''}</p>
+                    <p class="mt-1 text-2xl font-bold text-slate-800">${Math.round(firstScore)}<span class="ml-1 text-sm font-medium text-slate-500">km</span></p>
+                `;
+                player2ScoreElement.innerHTML = `
+                    <p class="text-xs font-semibold uppercase tracking-wide text-slate-500">${second.player_name}${p2IsWinner ? ' <span class="text-teal-700">&#10003; Winner</span>' : ''}</p>
+                    <p class="mt-1 text-2xl font-bold text-slate-800">${Math.round(secondScore)}<span class="ml-1 text-sm font-medium text-slate-500">km</span></p>
+                `;
             }
 
             // Equal scores are treated as a tie.

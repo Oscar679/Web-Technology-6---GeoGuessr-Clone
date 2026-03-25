@@ -16,7 +16,20 @@ class SignUpContainer extends HTMLElement {
     this.innerHTML = `
 <div class="flex min-h-full flex-col justify-center px-6 py-12 lg:px-8 mt-20">
   <div class="sm:mx-auto sm:w-full sm:max-w-sm">
-    <div class="mx-auto flex h-11 w-11 items-center justify-center rounded-full bg-teal-100 text-teal-700">G</div>
+    <div class="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-teal-50 ring-1 ring-teal-200/60">
+      <svg viewBox="0 0 24 24" class="h-9 w-9" aria-hidden="true">
+        <defs>
+          <radialGradient id="signupGlobe" cx="35%" cy="30%" r="70%">
+            <stop offset="0%" stop-color="#60a5fa" />
+            <stop offset="100%" stop-color="#1e3a8a" />
+          </radialGradient>
+        </defs>
+        <circle cx="12" cy="12" r="9" fill="url(#signupGlobe)" />
+        <path d="M6.5 9.5c1.2-2 3.4-3 5.6-2.4 1.4.4 2.5 1.3 3.9 1.5 1.2.2 1.7-.4 2.7-1.1-.3 2.8-2.1 5.1-5 5.8-2 .5-3.7-.2-5.3-1.4-.9-.7-1.7-1.6-1.9-2.4z" fill="#22c55e" />
+        <path d="M8.3 15.1c.9-.8 2-.9 3.1-.6 1.3.3 2.1 1.3 3.2 1.8.7.3 1.5.2 2.3-.1-1 2.1-3.1 3.5-5.6 3.5-1.7 0-3.3-.7-4.3-1.9.4-.9.7-1.6 1.3-2.7z" fill="#16a34a" />
+        <circle cx="12" cy="12" r="9" fill="none" stroke="rgba(255,255,255,0.35)" stroke-width="0.6" />
+      </svg>
+    </div>
     <h2 class="mt-6 text-center text-3xl font-bold tracking-tight text-slate-900">Create your account</h2>
   </div>
 
@@ -25,7 +38,7 @@ class SignUpContainer extends HTMLElement {
       <div>
         <label for="username" class="block text-sm/6 font-medium text-slate-800">Username</label>
         <div class="mt-2">
-          <input id="username" type="text" name="username" required autocomplete="username" class="block w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-base text-slate-900 placeholder:text-slate-400 focus:border-teal-700 focus:ring-2 focus:ring-teal-700/20 focus:outline-none sm:text-sm/6" />
+          <input id="username" type="username" name="username" required autocomplete="username" class="block w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-base text-slate-900 placeholder:text-slate-400 focus:border-teal-700 focus:ring-2 focus:ring-teal-700/20 focus:outline-none sm:text-sm/6" />
         </div>
       </div>
 
@@ -60,14 +73,14 @@ class SignUpContainer extends HTMLElement {
     this.form.addEventListener("submit", async (event) => {
       event.preventDefault();
       const signUp = SignUp.getInstance();
-      this.button.textContent = 'Signing up...';
+      this.button.innerHTML = 'Signing up...';
       this.status.textContent = '';
       this.button.classList.add('opacity-70');
       this.button.classList.add('pointer-events-none');
 
       const result = await signUp.submit(this.username.value, this.password.value);
       if (result.ok) {
-        this.button.textContent = 'Success';
+        this.button.innerHTML = 'Success';
         this.status.textContent = 'Account created';
         this.status.classList.remove('text-red-600');
         this.status.classList.add('text-green-700');
@@ -75,7 +88,7 @@ class SignUpContainer extends HTMLElement {
           window.location.href = 'Game.html';
         }, 600);
       } else {
-        this.button.textContent = 'Sign up';
+        this.button.innerHTML = 'Sign up';
         this.status.textContent = result.error || 'Sign up failed';
         this.status.classList.remove('text-green-700');
         this.status.classList.add('text-red-600');

@@ -143,3 +143,72 @@ body::after {
     background: linear-gradient(165deg, rgba(255, 255, 255, 0.92), rgba(240, 253, 250, 0.78));
     box-shadow: 0 16px 34px rgba(15, 23, 42, 0.1);
 }
+
+/* ── Smooth button press ────────────────────────── */
+a[class*="bg-teal"],
+button[class*="bg-teal"] {
+    transition: background-color 150ms ease, transform 80ms ease, box-shadow 150ms ease;
+}
+
+a[class*="bg-teal"]:active,
+button[class*="bg-teal"]:active {
+    transform: scale(0.97);
+}
+
+/* ── Input focus transitions ────────────────────── */
+input:not([readonly]) {
+    transition: border-color 150ms ease, box-shadow 150ms ease;
+}
+
+/* ── Results table row hover ────────────────────── */
+.results-table thead tr {
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.results-table thead th {
+    font-weight: 600;
+    color: #64748b;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+}
+
+.results-table tbody tr {
+    transition: background-color 120ms ease;
+}
+
+.results-table tbody tr:hover {
+    background-color: rgba(204, 251, 241, 0.4);
+}
+
+/* ── Podium cards ───────────────────────────────── */
+.podium-gold {
+    border-color: #f59e0b;
+    background: linear-gradient(160deg, #fffbeb 0%, #fef3c7 100%);
+}
+
+.podium-silver {
+    border-color: #94a3b8;
+    background: linear-gradient(160deg, #f8fafc 0%, #e2e8f0 100%);
+}
+
+.podium-bronze {
+    border-color: #c2710c;
+    background: linear-gradient(160deg, #fff7ed 0%, #ffedd5 100%);
+}
+
+/* ── Stat cards ─────────────────────────────────── */
+.stat-card {
+    transition: transform 120ms ease, box-shadow 120ms ease;
+}
+
+.stat-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(15, 23, 42, 0.08);
+}
+
+/* ── Winner score highlight ─────────────────────── */
+.score-winner {
+    border-color: #0d9488;
+    background: linear-gradient(160deg, #f0fdfa 0%, #ccfbf1 100%);
+}

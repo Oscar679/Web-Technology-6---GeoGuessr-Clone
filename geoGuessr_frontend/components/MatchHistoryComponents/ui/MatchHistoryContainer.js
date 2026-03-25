@@ -53,8 +53,8 @@ class MatchHistoryContainer extends HTMLElement {
         const matchHistory = MatchHistory.getInstance();
         try {
             const data = await matchHistory.fetchHistory();
-            const games = Array.isArray(data?.games) ? data.games : [];
-            const summaryData = data?.summary || { wins: 0, losses: 0, ties: 0, winPct: 0 };
+            const games = data.games;
+            const summaryData = data.summary;
 
             if (games.length === 0) {
                 summary.textContent = "";
@@ -63,22 +63,22 @@ class MatchHistoryContainer extends HTMLElement {
             }
 
             summary.innerHTML = `
-                <div class="grid gap-2 sm:grid-cols-4">
-                    <div class="rounded-lg border border-slate-200 bg-white/80 px-3 py-2">
-                        <p class="text-xs uppercase tracking-wide text-slate-500">Wins</p>
-                        <p class="text-base font-semibold text-green-700">${summaryData.wins}</p>
+                <div class="grid gap-3 sm:grid-cols-4">
+                    <div class="stat-card rounded-lg border border-slate-200 bg-white/80 px-4 py-3">
+                        <p class="text-xs font-semibold uppercase tracking-wide text-slate-500">Wins</p>
+                        <p class="mt-1 text-2xl font-bold text-green-700">${summaryData.wins}</p>
                     </div>
-                    <div class="rounded-lg border border-slate-200 bg-white/80 px-3 py-2">
-                        <p class="text-xs uppercase tracking-wide text-slate-500">Losses</p>
-                        <p class="text-base font-semibold text-red-700">${summaryData.losses}</p>
+                    <div class="stat-card rounded-lg border border-slate-200 bg-white/80 px-4 py-3">
+                        <p class="text-xs font-semibold uppercase tracking-wide text-slate-500">Losses</p>
+                        <p class="mt-1 text-2xl font-bold text-red-600">${summaryData.losses}</p>
                     </div>
-                    <div class="rounded-lg border border-slate-200 bg-white/80 px-3 py-2">
-                        <p class="text-xs uppercase tracking-wide text-slate-500">Ties</p>
-                        <p class="text-base font-semibold text-slate-700">${summaryData.ties}</p>
+                    <div class="stat-card rounded-lg border border-slate-200 bg-white/80 px-4 py-3">
+                        <p class="text-xs font-semibold uppercase tracking-wide text-slate-500">Ties</p>
+                        <p class="mt-1 text-2xl font-bold text-slate-600">${summaryData.ties}</p>
                     </div>
-                    <div class="rounded-lg border border-slate-200 bg-white/80 px-3 py-2">
-                        <p class="text-xs uppercase tracking-wide text-slate-500">Win Rate</p>
-                        <p class="text-base font-semibold text-teal-700">${summaryData.winPct}%</p>
+                    <div class="stat-card rounded-lg border border-teal-200 bg-teal-50/60 px-4 py-3">
+                        <p class="text-xs font-semibold uppercase tracking-wide text-teal-600">Win Rate</p>
+                        <p class="mt-1 text-2xl font-bold text-teal-700">${summaryData.winPct}%</p>
                     </div>
                 </div>
             `;
@@ -87,9 +87,9 @@ class MatchHistoryContainer extends HTMLElement {
             list.classList.remove("hidden");
             list.innerHTML = `
                 <div class="overflow-x-auto">
-                    <table class="min-w-full text-sm">
+                    <table class="results-table min-w-full text-sm">
                         <thead>
-                            <tr class="text-left text-slate-500">
+                            <tr class="text-left">
                                 <th class="py-2 pr-4">Result</th>
                                 <th class="py-2 pr-4">Game ID</th>
                                 <th class="py-2 pr-4">Score</th>
@@ -115,14 +115,12 @@ class MatchHistoryContainer extends HTMLElement {
                 let outcomeClass = "bg-white";
                 let outcomeLabel = "Pending";
                 let outcomeBadgeClass = "bg-slate-100 text-slate-700";
-                const ownScore = Number(row.score);
-                const opponentScore = row.opponent_score != null ? Number(row.opponent_score) : null;
-                if (opponentScore != null) {
-                    if (ownScore < opponentScore) {
+                if (row.opponent_score != null) {
+                    if (row.score < row.opponent_score) {
                         outcomeClass = "bg-green-50";
                         outcomeLabel = "W";
                         outcomeBadgeClass = "bg-green-100 text-green-800";
-                    } else if (ownScore > opponentScore) {
+                    } else if (row.score > row.opponent_score) {
                         outcomeClass = "bg-red-50";
                         outcomeLabel = "L";
                         outcomeBadgeClass = "bg-red-100 text-red-800";
@@ -139,7 +137,7 @@ class MatchHistoryContainer extends HTMLElement {
                                         <span class="inline-flex min-w-7 items-center justify-center rounded-md px-2 py-0.5 text-xs font-semibold ${outcomeBadgeClass}">${outcomeLabel}</span>
                                     </td>
                                     <td class="py-2 pr-4 font-mono text-xs">${row.game_id}</td>
-                                    <td class="py-2 pr-4">${Math.round(ownScore)} km</td>
+                                    <td class="py-2 pr-4">${row.score}</td>
                                     <td class="py-2 pr-4">${row.opponent_name ?? "Waiting"}</td>
                                     <td class="py-2 pr-4">${timeLabel}</td>
                                 </tr>

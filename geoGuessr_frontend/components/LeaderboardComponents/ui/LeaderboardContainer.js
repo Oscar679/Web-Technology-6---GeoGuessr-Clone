@@ -57,18 +57,22 @@ class LeaderboardContainer extends HTMLElement {
             const topThree = results.slice(0, 3);
             list.innerHTML = `
                 <div class="mb-5 grid gap-3 sm:grid-cols-3">
-                    ${topThree.map((row, index) => `
-                        <div class="rounded-xl border border-slate-200 bg-white/80 px-4 py-3">
-                            <p class="text-xs font-semibold uppercase tracking-wide text-slate-500">#${index + 1}</p>
-                            <p class="mt-1 truncate text-sm font-semibold text-slate-900">${row.player_name}</p>
-                            <p class="mt-1 text-sm text-teal-700">${row.rating ?? 0} rating</p>
+                    ${topThree.map((row, index) => {
+                        const podiumClass = index === 0 ? 'podium-gold' : index === 1 ? 'podium-silver' : 'podium-bronze';
+                        const medalIcon = index === 0 ? '&#127945;' : index === 1 ? '&#129352;' : '&#129353;';
+                        const ratingColor = index === 0 ? 'text-amber-700' : index === 1 ? 'text-slate-600' : 'text-orange-700';
+                        return `
+                        <div class="rounded-xl border px-4 py-3 ${podiumClass}">
+                            <p class="text-lg leading-none">${medalIcon}</p>
+                            <p class="mt-2 truncate text-sm font-semibold text-slate-900">${row.player_name}</p>
+                            <p class="mt-1 text-sm font-medium ${ratingColor}">${row.rating ?? 0} pts</p>
                         </div>
-                    `).join("")}
+                    `}).join("")}
                 </div>
                 <div class="overflow-x-auto">
-                    <table class="min-w-full text-sm">
+                    <table class="results-table min-w-full text-sm">
                         <thead>
-                            <tr class="text-left text-slate-500">
+                            <tr class="text-left">
                                 <th class="py-2 pr-4">Rank</th>
                                 <th class="py-2 pr-4">Player</th>
                                 <th class="py-2 pr-4">Rating</th>
